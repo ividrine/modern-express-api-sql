@@ -1,9 +1,9 @@
 export default class ApiError extends Error {
-  statusCode: string;
+  statusCode: number;
   isOperational: boolean;
 
   constructor(
-    statusCode: string,
+    statusCode: number,
     message: string,
     isOperational = true,
     stack = ""

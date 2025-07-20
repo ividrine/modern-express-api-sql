@@ -7,6 +7,7 @@ const envVarsSchema = Joi.object()
       .required(),
     PORT: Joi.number().default(3000),
     DB_URL: Joi.string().required().description("DB url"),
+    VALKEY_URL: Joi.string().required().description("Valkey url"),
     JWT_SECRET: Joi.string().required().description("JWT secret key"),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number()
       .default(30)
@@ -47,7 +48,11 @@ if (error) {
 export default {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
+  db_url: envVars.DB_URL,
+  valkey_url: envVars.VALKEY_URL,
   jwt: {
+    iss: "localhost",
+    aud: ["localhost"],
     secret: envVars.JWT_SECRET,
     accessExpirationMinutes: envVars.JWT_ACCESS_EXPIRATION_MINUTES,
     refreshExpirationDays: envVars.JWT_REFRESH_EXPIRATION_DAYS,

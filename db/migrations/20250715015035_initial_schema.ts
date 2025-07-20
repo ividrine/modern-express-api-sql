@@ -1,10 +1,33 @@
-import type { Kysely } from "kysely";
+import { Kysely, sql } from "kysely";
 
 // `any` is required here since migrations should be frozen in time. alternatively, keep a "snapshot" db interface.
 export async function up(db: Kysely<any>): Promise<void> {
   // up migration code goes here...
   // note: up migrations are mandatory. you must implement this function.
   // For more info, see: https://kysely.dev/docs/migrations
+  await db.schema
+    .createTable("user")
+    .addColumn("id", "uuid", (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`)
+    )
+    .addColumn("email", "varchar", (col) => col.notNull())
+    .addColumn("password", "varchar", (col) => col.notNull())
+    .addColumn("created_at", "timestamp", (col) =>
+      col.defaultTo(sql`now()`).notNull()
+    )
+    .execute();
+
+  await db.schema
+    .createTable("token")
+    .addColumn("id", "uuid", (col) =>
+      col.primaryKey().defaultTo(sql`gen_random_uuid()`)
+    )
+    .addColumn("name", "varchar", (col) => col.notNull().unique())
+    .addColumn("owner_id", "integer", (col) =>
+      col.references("person.id").onDelete("cascade").notNull()
+    )
+    .addColumn("species", "varchar", (col) => col.notNull())
+    .execute();
 }
 
 // `any` is required here since migrations should be frozen in time. alternatively, keep a "snapshot" db interface.
