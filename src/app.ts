@@ -4,6 +4,7 @@ import helmet from "helmet";
 import httpStatus from "http-status";
 import ApiError from "./utils/ApiError.js";
 import compression from "compression";
+import routes from "./http/routes/v1";
 import { authLimiter } from "./http/middlewares/rateLimiter.middleware";
 import {
   errorConverter,
@@ -24,7 +25,7 @@ if (config.env === "production") {
   app.use("/v1/auth", authLimiter);
 }
 
-//app.use("/v1", routes);
+app.use("/v1", routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

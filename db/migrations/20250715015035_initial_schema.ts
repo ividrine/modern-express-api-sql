@@ -22,11 +22,18 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("id", "uuid", (col) =>
       col.primaryKey().defaultTo(sql`gen_random_uuid()`)
     )
-    .addColumn("name", "varchar", (col) => col.notNull().unique())
-    .addColumn("owner_id", "integer", (col) =>
-      col.references("person.id").onDelete("cascade").notNull()
+    .addColumn("token", "varchar", (col) => col.notNull().unique())
+    .addColumn("userId", "uuid", (col) =>
+      col.references("user.id").onDelete("cascade").notNull()
     )
-    .addColumn("species", "varchar", (col) => col.notNull())
+    .addColumn("expires", "timestamp", (col) => col.notNull())
+    .addColumn("revoked", "boolean", (col) => col.notNull())
+    .addColumn("created_at", "timestamp", (col) =>
+      col.defaultTo(sql`now()`).notNull()
+    )
+    .addColumn("updated_at", "timestamp", (col) =>
+      col.defaultTo(sql`now()`).notNull()
+    )
     .execute();
 }
 

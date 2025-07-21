@@ -1,7 +1,7 @@
 import Joi from "joi";
 import httpStatus from "http-status";
-import pick from "../utils/pick.js";
-import ApiError from "../utils/ApiError.js";
+import pick from "../../utils/pick.js";
+import ApiError from "../../utils/ApiError.js";
 import { Request, Response, NextFunction } from "express";
 
 const validate =

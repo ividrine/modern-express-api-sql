@@ -2,7 +2,7 @@ import express from "express";
 import validate from "../../middlewares/validate.middleware.js";
 import authValidator from "../../validators/auth.validator.js";
 import authController from "../../controllers/auth.controller.js";
-import auth from "../../middleware/auth.js";
+import { authorize } from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.post(
 );
 router.post(
   "/send-verification-email",
-  auth(),
+  authorize(),
   authController.sendVerificationEmail
 );
 router.post(

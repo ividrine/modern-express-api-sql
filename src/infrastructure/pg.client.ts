@@ -5,7 +5,6 @@ import logger from "../config/logger.js";
 import type { Database } from "../types/database.js";
 
 const pool = new Pool({
-  database: "test",
   connectionString: config.db_url,
   max: 10
 });
