@@ -31,6 +31,9 @@ services:
       - pg
     logging:
       driver: none
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 volumes:
   pg_data:
   valkey_data:
+  pgadmin_data:
