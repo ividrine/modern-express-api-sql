@@ -11,7 +11,7 @@ import {
   findToken,
   deleteTokenByValue
 } from "../../infrastructure/repositories/token.repository.js";
-import { User } from "../domain/user.js";
+import { SelectableUser } from "../../infrastructure/types/wrappers.js";
 
 const generateToken = async (payload: JWTPayload): Promise<string> => {
   return await new SignJWT(payload)
@@ -40,7 +40,7 @@ const verifyToken = async (token: string, type: string) => {
   return tokenRow;
 };
 
-export const findOne = async (user: Partial<User>) => {
+export const findOne = async (user: Partial<SelectableUser>) => {
   return await findToken(user);
 };
 
