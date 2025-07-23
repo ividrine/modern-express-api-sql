@@ -5,13 +5,16 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "docker-compose up --build --wait -d && dotenv -e .env.example -- kysely migrate latest && tsx watch --env-file=.env.example src/index.ts",
+    "dev": "docker-compose up --build --wait -d && dotenv -e .env -- kysely migrate latest && tsx watch --env-file=.env src/index.ts",
     "prod": "node dist/index.js",
     "test": "",
     "prepare": "husky install",
-    "db:migrate:make": "kysely migrate make",
-    "db:migrate:dev": "dotenv -e .env.example -- kysely migrate latest",
-    "db:rollback": "kysely migrate rollback"
+    "up": "docker-compose up --build -d",
+    "down": "docker-compose down",
+    "migrate:make": "kysely migrate make",
+    "migrate:dev": "dotenv -e .env -- kysely migrate latest",
+    "migrate:rollback:dev": "dotenv -e .env -- kysely migrate rollback",
+    "generate:dev": "kysely-codegen --env-file .env --out-file ./src/infrastructure/types/database.ts"
   },
   "keywords": [],
   "author": "",
