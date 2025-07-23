@@ -24,7 +24,12 @@ export const errorConverter = (
   next(error);
 };
 
-export const errorHandler = (err: ApiError, req: Request, res: Response) => {
+export const errorHandler = (
+  err: ApiError,
+  req: Request,
+  res: Response,
+  next: NextFunction // eslint-disable-line
+) => {
   let { statusCode, message } = err;
   if (config.env === "production" && !err.isOperational) {
     statusCode = httpStatus.INTERNAL_SERVER_ERROR;

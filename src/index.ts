@@ -13,7 +13,7 @@ import {
 
   // Start server
   const server = app.listen(config.port, () => {
-    logger.info(`Listening to port ${config.port}`);
+    logger.info(`Listening on port ${config.port}`);
   });
 
   const shutdown = async () => {
