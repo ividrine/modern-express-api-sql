@@ -1,6 +1,6 @@
 import express from "express";
 import validate from "../../middlewares/validate.middleware.js";
-import authValidator from "../../validators/auth.validator.js";
+import authValidator from "../../validations/auth.validation.js";
 import authController from "../../controllers/auth.controller.js";
 import { authorize } from "../../middlewares/auth.middleware.js";
 

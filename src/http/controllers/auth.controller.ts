@@ -5,7 +5,7 @@ import {
   userService,
   tokenService,
   emailService
-} from "../../services";
+} from "../../domain/services";
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
