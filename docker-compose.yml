@@ -8,6 +8,7 @@ services:
       - "6379:6379"
     volumes:
       - valkey_data:/data/valkey
+
   pg:
     image: postgres:16-alpine
     container_name: pg-server
@@ -19,7 +20,14 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/data/db'
-      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./kysely/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+    # Allows app to wait for container boostrap https://docs.docker.com/reference/dockerfile/#healthcheck
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d appdb"]
+      start_period: 5s
+
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -33,6 +41,7 @@ services:
       driver: none
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+
 volumes:
   pg_data:
   valkey_data:
