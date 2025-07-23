@@ -1,8 +1,8 @@
 import { Pool } from "pg";
-import config from "../../config/config.js";
+import config from "../../config/config";
 import { Kysely, PostgresDialect } from "kysely";
-import logger from "../../config/logger.js";
-import type { Database } from "../types/database.js";
+import logger from "../../config/logger";
+import type { DB } from "../types/db";
 
 const pool = new Pool({
   connectionString: config.db_url
@@ -11,7 +11,7 @@ const pool = new Pool({
 });
 
 const dialect = new PostgresDialect({ pool });
-export const db = new Kysely<Database>({ dialect });
+export const db = new Kysely<DB>({ dialect });
 
 export const initSql = async () => {
   await pool.query("select 1");
