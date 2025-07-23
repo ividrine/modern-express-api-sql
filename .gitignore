@@ -11,5 +11,8 @@ coverage
 # Build
 dist
 
-#
+# Secrets
 keys
+
+# ide
+.vscode
