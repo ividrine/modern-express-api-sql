@@ -13,6 +13,14 @@ export const findUserById = async (id: string) => {
     .executeTakeFirst();
 };
 
+export const findUserByEmail = async (email: string) => {
+  return await db
+    .selectFrom("user")
+    .where("email", "=", email)
+    .selectAll()
+    .executeTakeFirst();
+};
+
 export const test = async (id: string) => {
   return await db
     .selectFrom("user")
