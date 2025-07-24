@@ -34,7 +34,7 @@ services:
     env_file:
       - ./.env.example
     ports:
-      - "54321:80"
+      - "4321:80"
     depends_on:
       - pg
     logging:
