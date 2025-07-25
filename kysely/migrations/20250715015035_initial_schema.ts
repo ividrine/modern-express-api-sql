@@ -11,6 +11,10 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("username", "varchar", (col) => col.notNull().unique())
     .addColumn("email", "varchar", (col) => col.notNull().unique())
     .addColumn("password", "varchar", (col) => col.notNull())
+    .addColumn("role", "varchar", (col) => col.defaultTo("user").notNull())
+    .addColumn("is_email_verified", "boolean", (col) =>
+      col.defaultTo(false).notNull()
+    )
     .addColumn("created_at", "timestamp", (col) =>
       col.defaultTo(sql`now()`).notNull()
     )

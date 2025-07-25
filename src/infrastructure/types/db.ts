@@ -39,8 +39,10 @@ export interface User {
   created_at: Generated<Timestamp>;
   email: string;
   id: Generated<string>;
+  is_email_verified: Generated<boolean>;
   metadata: Json | null;
   password: string;
+  role: Generated<string>;
   updated_at: Generated<Timestamp>;
   username: string;
 }
