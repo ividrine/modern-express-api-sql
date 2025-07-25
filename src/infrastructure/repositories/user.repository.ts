@@ -5,75 +5,92 @@ import {
   UpdatableUser
 } from "../types/wrappers";
 
-export const findUserById = async (id: string) => {
-  return await db
-    .selectFrom("user")
-    .where("id", "=", id)
-    .selectAll()
-    .executeTakeFirst();
-};
+export const USER_COLUMNS = [
+  "id",
+  "username",
+  "email",
+  "role",
+  "is_email_verified",
+  "created_at",
+  "updated_at",
+  "metadata"
+] satisfies ReadonlyArray<keyof SelectableUser>;
 
-export const findUserByEmail = async (email: string) => {
-  return await db
-    .selectFrom("user")
-    .where("email", "=", email)
-    .selectAll()
-    .executeTakeFirst();
-};
-
-export const test = async (id: string) => {
-  return await db
-    .selectFrom("user")
-    .where("id", "=", id)
-    .innerJoin("token", "token.userId", "user.id")
-    .select(["user.id", "token.token as token"])
-    .execute();
-};
-
-export async function findUsers(criteria: Partial<SelectableUser>) {
-  let query = db.selectFrom("user");
-
-  if (criteria.id) {
-    query = query.where("id", "=", criteria.id); // Kysely is immutable, you must re-assign!
-  }
-
-  if (criteria.email) {
-    query = query.where("email", "=", criteria.email);
-  }
-
-  if (criteria.created_at) {
-    query = query.where("created_at", "=", criteria.created_at);
-  }
-
-  return await query.selectAll().execute();
-}
-
-export async function updateUser(id: string, updateWith: UpdatableUser) {
-  await db.updateTable("user").set(updateWith).where("id", "=", id).execute();
-}
-
-export async function insertUser(user: InsertableUser) {
+const insertOne = async (user: InsertableUser) => {
   return await db
     .insertInto("user")
     .values(user)
-    .returningAll()
+    .returning(USER_COLUMNS)
     .executeTakeFirstOrThrow();
-}
+};
 
-export async function deleteUser(id: string) {
+const findByEmailOrUsername = async (identifier: string) => {
+  return await db
+    .selectFrom("user")
+    .where((eb) =>
+      eb.or([eb("email", "=", identifier), eb("username", "=", identifier)])
+    )
+    .selectAll()
+    .executeTakeFirst();
+};
+
+const findOne = async (criteria: Partial<SelectableUser>) => {
+  return Object.keys(criteria)
+    .reduce((acc, key) => {
+      const value = criteria[key as keyof SelectableUser];
+      if (value) acc = acc.where(key as keyof SelectableUser, "=", value);
+      return acc;
+    }, db.selectFrom("user"))
+    .select(USER_COLUMNS)
+    .executeTakeFirst();
+};
+
+const findMany = async (criteria: Partial<SelectableUser>) => {
+  return Object.keys(criteria)
+    .reduce((acc, key) => {
+      const value = criteria[key as keyof SelectableUser];
+      if (value) acc = acc.where(key as keyof SelectableUser, "=", value);
+      return acc;
+    }, db.selectFrom("user"))
+    .select(USER_COLUMNS)
+    .execute();
+};
+
+const updateOne = async (id: string, updateWith: UpdatableUser) => {
+  await db.updateTable("user").set(updateWith).where("id", "=", id).execute();
+};
+
+const deleteOne = async (id: string) => {
   return await db
     .deleteFrom("user")
     .where("id", "=", id)
-    .returningAll()
+    .returning(USER_COLUMNS)
     .executeTakeFirst();
-}
+};
 
-export async function isEmailTaken(email: string, userId?: string) {
+const isEmailTaken = async (email: string, userId?: string) => {
   let query = db.selectFrom("user").where("email", "=", email);
-
   if (userId) {
     query = query.where("id", "!=", userId);
   }
+  return await query.select(USER_COLUMNS).executeTakeFirst();
+};
 
-  return await query.selectAll().executeTakeFirst();
-}
+const isUsernameTaken = async (username: string) => {
+  return await db
+    .selectFrom("user")
+    .where("username", "=", username)
+    .select(USER_COLUMNS)
+    .execute();
+};
+
+export default {
+  insertOne,
+  findByEmailOrUsername,
+  findOne,
+  findMany,
+  updateOne,
+  deleteOne,
+  isEmailTaken,
+  isUsernameTaken
+};

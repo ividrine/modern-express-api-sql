@@ -6,42 +6,35 @@ import ApiError from "../../utils/ApiError.js";
 import tokenTypes from "../../config/tokens.js";
 import userService from "./user.service.js";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
-import {
-  insertToken,
-  findToken,
-  deleteTokenByValue
-} from "../../infrastructure/repositories/token.repository.js";
+import tokenRepository from "../../infrastructure/repositories/token.repository.js";
 import { SelectableUser } from "../../infrastructure/types/wrappers.js";
 
 const generateToken = async (payload: JWTPayload): Promise<string> => {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+    .setIssuer(config.jwt.iss)
+    .setAudience(config.jwt.aud)
     .setIssuedAt()
-    .sign(config.jwt.secret);
+    .sign(new TextEncoder().encode(config.jwt.secret));
 };
 
-/**
- * Verify token and return token doc (or throw an error if it is not valid)
- * @param {string} token
- * @param {string} type
- * @returns {Promise<Token>}
- */
 const verifyToken = async (token: string, type: string) => {
   const verifyResult = await jwtVerify(token, config.jwt.secret);
-  const tokenRow = await findToken({
+  const user = await tokenRepository.findOneUser({
     token,
     userId: verifyResult.payload.sub,
-    type
+    type,
+    revoked: false
   });
 
-  if (!tokenRow) {
+  if (!user) {
     throw new Error("Token not found");
   }
-  return tokenRow;
+  return user;
 };
 
 export const findOne = async (user: Partial<SelectableUser>) => {
-  return await findToken(user);
+  return await tokenRepository.findOne(user);
 };
 
 /**
@@ -49,7 +42,7 @@ export const findOne = async (user: Partial<SelectableUser>) => {
  * @param {User} user
  * @returns {Promise<Object>}
  */
-const generateAuthTokens = async (user: { id: string }) => {
+const generateAuthTokens = async (user: Partial<SelectableUser>) => {
   const accessTokenExpires = dayjs().add(
     config.jwt.accessExpirationMinutes,
     "minutes"
@@ -59,7 +52,8 @@ const generateAuthTokens = async (user: { id: string }) => {
     sub: user.id,
     exp: accessTokenExpires.unix(),
     jti: uuid(),
-    type: tokenTypes.ACCESS
+    type: tokenTypes.ACCESS,
+    role: user.role
   });
 
   const refreshTokenExpires = dayjs().add(
@@ -74,13 +68,12 @@ const generateAuthTokens = async (user: { id: string }) => {
     type: tokenTypes.REFRESH
   });
 
-  await insertToken({
+  await tokenRepository.insertOne({
     userId: user.id,
     token: refreshToken,
-    expires: refreshTokenExpires.toDate(),
+    expires: refreshTokenExpires.toISOString(),
     revoked: false,
-    type: tokenTypes.REFRESH,
-    updated_at: Date.now().toString()
+    type: tokenTypes.REFRESH
   });
 
   return {
@@ -101,7 +94,7 @@ const generateAuthTokens = async (user: { id: string }) => {
  * @returns {Promise<string>}
  */
 const generateResetPasswordToken = async (email: string) => {
-  const user = await userService.getUserByEmail(email);
+  const user = await userService.findUser({ email });
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
   }
@@ -116,7 +109,7 @@ const generateResetPasswordToken = async (email: string) => {
     type: tokenTypes.RESET_PASSWORD
   });
 
-  await insertToken({
+  await tokenRepository.insertOne({
     userId: user.id,
     token: resetPasswordToken,
     expires: expires.toDate(),
@@ -145,7 +138,7 @@ const generateVerifyEmailToken = async (userId: string) => {
     type: tokenTypes.VERIFY_EMAIL
   });
 
-  await insertToken({
+  await tokenRepository.insertOne({
     userId: userId,
     token: verifyEmailToken,
     expires: expires.toDate(),
@@ -158,7 +151,7 @@ const generateVerifyEmailToken = async (userId: string) => {
 };
 
 const deleteToken = async (token: string) => {
-  return await deleteTokenByValue(token);
+  return await tokenRepository.deleteOne(token);
 };
 
 export default {

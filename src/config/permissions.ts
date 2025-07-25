@@ -1,2 +1,4 @@
-export const GET_USERS = "GET_USERS";
-export const MANAGE_USERS = "MANAGE_USERS";
+export const CREATE_USERS = "create:users";
+export const READ_USERS = "read:users";
+export const UPDATE_USERS = "update:users";
+export const DELETE_USERS = "delete:users";

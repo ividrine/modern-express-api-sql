@@ -1,45 +1,39 @@
 import httpStatus from "http-status";
 import ApiError from "../../utils/ApiError.js";
+import bcrypt from "bcrypt";
+
 import {
   InsertableUser,
+  SelectableUser,
   UpdatableUser
 } from "../../infrastructure/types/wrappers.js";
-import {
-  findUserById,
-  findUserByEmail,
-  insertUser,
-  isEmailTaken,
-  deleteUser,
-  updateUser
-} from "../../infrastructure/repositories/user.repository.js";
 
+import userRepository from "../../infrastructure/repositories/user.repository.js";
+
+const saltRounds = 10;
 /**
  * Create a user
  * @param {Object} userBody
  * @returns {Promise<User>}
  */
 const createUser = async (userBody: InsertableUser) => {
-  if (await isEmailTaken(userBody.email)) {
+  if (await userRepository.isEmailTaken(userBody.email))
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
-  }
-  return insertUser(userBody);
+  const password = await bcrypt.hash(userBody.password, saltRounds);
+  const user = { ...userBody, ...{ password } };
+  return userRepository.insertOne(user);
 };
 /**
  * Get user by id
  * @param {ObjectId} id
  * @returns {Promise<User>}
  */
-const getUserById = async (id: string) => {
-  return findUserById(id);
+const findUserByEmailOrUsername = async (identifier: string) => {
+  return userRepository.findByEmailOrUsername(identifier);
 };
 
-/**
- * Get user by email
- * @param {string} email
- * @returns {Promise<User>}
- */
-const getUserByEmail = async (email: string) => {
-  return findUserByEmail(email);
+const findUser = async (criteria: Partial<SelectableUser>) => {
+  return userRepository.findOne(criteria);
 };
 
 /**
@@ -49,16 +43,19 @@ const getUserByEmail = async (email: string) => {
  * @returns {Promise<User>}
  */
 const updateUserById = async (userId: string, updateBody: UpdatableUser) => {
-  const user = await getUserById(userId);
+  const user = await userRepository.findOne({ id: userId });
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
-  if (updateBody.email && (await isEmailTaken(updateBody.email, userId))) {
+  if (
+    updateBody.email &&
+    (await userRepository.isEmailTaken(updateBody.email, userId))
+  ) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
   }
   Object.assign(user, updateBody);
 
-  await updateUser(userId, updateBody);
+  await userRepository.updateOne(userId, updateBody);
 };
 
 /**
@@ -67,19 +64,20 @@ const updateUserById = async (userId: string, updateBody: UpdatableUser) => {
  * @returns {Promise<User>}
  */
 const deleteUserById = async (userId: string) => {
-  const user = await getUserById(userId);
+  const user = await userRepository.findOne({ id: userId });
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
-  await deleteUser(userId);
+
+  await userRepository.deleteOne(userId);
   return user;
 };
 
 export default {
   createUser,
-  getUserById,
-  getUserByEmail,
+  findUserByEmailOrUsername,
+  findUser,
   updateUserById,
   deleteUserById
 };

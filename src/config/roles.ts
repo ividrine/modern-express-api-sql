@@ -1,8 +1,13 @@
-import { GET_USERS, MANAGE_USERS } from "./permissions";
+import {
+  CREATE_USERS,
+  READ_USERS,
+  UPDATE_USERS,
+  DELETE_USERS
+} from "./permissions";
 
 const allRoles = {
   user: [],
-  admin: [GET_USERS, MANAGE_USERS]
+  admin: [CREATE_USERS, READ_USERS, UPDATE_USERS, DELETE_USERS]
 };
 
 export const roles = Object.keys(allRoles);

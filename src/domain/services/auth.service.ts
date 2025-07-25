@@ -15,11 +15,11 @@ const loginUserWithEmailAndPassword = async (
   email: string,
   password: string
 ) => {
-  const user = await userService.getUserByEmail(email);
-  if (!user || !bcrypt.compare(user.password as string, password)) {
+  const user = await userService.findUserByEmailOrUsername(email);
+  if (!user || !bcrypt.compare(user.password, password)) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Incorrect email or password");
   }
-  return user;
+  return { ...user, ...{ password: undefined } };
 };
 
 /**
@@ -51,11 +51,10 @@ const logout = async (refreshToken: string) => {
  */
 const refreshAuth = async (refreshToken: string) => {
   try {
-    const refreshTokenRow = await tokenService.verifyToken(
+    const user = await tokenService.verifyToken(
       refreshToken,
       tokenTypes.REFRESH
     );
-    const user = await userService.getUserById(refreshTokenRow.userId);
     if (!user) {
       throw new Error();
     }

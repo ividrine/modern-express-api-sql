@@ -1,10 +1,37 @@
-import { auth, requiredScopes } from "express-oauth2-jwt-bearer";
+import { auth } from "express-oauth2-jwt-bearer";
+import config from "../../config/config";
+import httpStatus from "http-status";
+import type { Request, Response, NextFunction } from "express";
+import ApiError from "../../utils/ApiError";
+import tokenTypes from "../../config/tokens";
+import { roleRights } from "../../config/roles";
 
-// Check if token is valid
-// check if token is revoked
-// check scope
+export const authorize = (...permissions: string[]) => [
+  auth({
+    secret: config.jwt.secret,
+    tokenSigningAlg: "HS256",
+    issuer: config.jwt.iss,
+    audience: config.jwt.aud
+  }),
+  (req: Request, res: Response, next: NextFunction) => {
+    const payload = req.auth?.payload;
+    const userRole = payload?.role as string;
+    const privileges = roleRights.get(userRole) as string[];
 
-export const authorize = (...scopes: string[]) => [
-  auth, // validate token
-  requiredScopes(scopes)
+    const hasPrivileges = permissions.every((permission) =>
+      privileges.includes(permission)
+    );
+
+    if (payload?.type != tokenTypes.ACCESS) {
+      next(new Error("Invalid token type"));
+    }
+
+    // This is an import condition.
+    // On /:userId routes a user doesn't need specific permissions to access / modify their own data.
+    if (!hasPrivileges && req.params?.userId !== payload?.sub) {
+      next(new ApiError(httpStatus.FORBIDDEN, "Forbidden"));
+    }
+
+    next();
+  }
 ];
