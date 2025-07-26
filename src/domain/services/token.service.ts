@@ -7,7 +7,10 @@ import tokenTypes from "../../config/tokens.js";
 import userService from "./user.service.js";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import tokenRepository from "../../infrastructure/repositories/token.repository.js";
-import { SelectableUser } from "../../infrastructure/types/wrappers.js";
+import {
+  PublicUser,
+  SelectableToken
+} from "../../infrastructure/types/wrappers.js";
 
 const generateToken = async (payload: JWTPayload): Promise<string> => {
   return await new SignJWT(payload)
@@ -19,7 +22,10 @@ const generateToken = async (payload: JWTPayload): Promise<string> => {
 };
 
 const verifyToken = async (token: string, type: string) => {
-  const verifyResult = await jwtVerify(token, config.jwt.secret);
+  const verifyResult = await jwtVerify(
+    token,
+    new TextEncoder().encode(config.jwt.secret)
+  );
   const user = await tokenRepository.findOneUser({
     token,
     userId: verifyResult.payload.sub,
@@ -33,16 +39,7 @@ const verifyToken = async (token: string, type: string) => {
   return user;
 };
 
-export const findOne = async (user: Partial<SelectableUser>) => {
-  return await tokenRepository.findOne(user);
-};
-
-/**
- * Generate auth tokens
- * @param {User} user
- * @returns {Promise<Object>}
- */
-const generateAuthTokens = async (user: Partial<SelectableUser>) => {
+const generateAuthTokens = async (user: PublicUser) => {
   const accessTokenExpires = dayjs().add(
     config.jwt.accessExpirationMinutes,
     "minutes"
@@ -53,7 +50,8 @@ const generateAuthTokens = async (user: Partial<SelectableUser>) => {
     exp: accessTokenExpires.unix(),
     jti: uuid(),
     type: tokenTypes.ACCESS,
-    role: user.role
+    role: user.role,
+    email: user.email
   });
 
   const refreshTokenExpires = dayjs().add(
@@ -88,11 +86,6 @@ const generateAuthTokens = async (user: Partial<SelectableUser>) => {
   };
 };
 
-/**
- * Generate reset password token
- * @param {string} email
- * @returns {Promise<string>}
- */
 const generateResetPasswordToken = async (email: string) => {
   const user = await userService.findUser({ email });
   if (!user) {
@@ -112,20 +105,14 @@ const generateResetPasswordToken = async (email: string) => {
   await tokenRepository.insertOne({
     userId: user.id,
     token: resetPasswordToken,
-    expires: expires.toDate(),
+    expires: expires.toISOString(),
     revoked: false,
-    type: tokenTypes.RESET_PASSWORD,
-    updated_at: Date.now().toString()
+    type: tokenTypes.RESET_PASSWORD
   });
 
   return resetPasswordToken;
 };
 
-/**
- * Generate verify email token
- * @param {User} user
- * @returns {Promise<string>}
- */
 const generateVerifyEmailToken = async (userId: string) => {
   const expires = dayjs().add(
     config.jwt.verifyEmailExpirationMinutes,
@@ -141,23 +128,32 @@ const generateVerifyEmailToken = async (userId: string) => {
   await tokenRepository.insertOne({
     userId: userId,
     token: verifyEmailToken,
-    expires: expires.toDate(),
+    expires: expires.toISOString(),
     revoked: false,
-    type: tokenTypes.VERIFY_EMAIL,
-    updated_at: Date.now().toString()
+    type: tokenTypes.VERIFY_EMAIL
   });
 
   return verifyEmailToken;
 };
 
-const deleteToken = async (token: string) => {
-  return await tokenRepository.deleteOne(token);
+const deleteToken = async (tokenId: string) => {
+  return await tokenRepository.deleteOne(tokenId);
+};
+
+const deleteManyTokens = async (userId: string, type: string) => {
+  return await tokenRepository.deleteMany(userId, type);
+};
+
+const findToken = async (token: Partial<SelectableToken>) => {
+  return await tokenRepository.findOne(token);
 };
 
 export default {
   generateToken,
   deleteToken,
+  deleteManyTokens,
   verifyToken,
+  findToken,
   generateAuthTokens,
   generateResetPasswordToken,
   generateVerifyEmailToken

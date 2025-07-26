@@ -5,12 +5,6 @@ import ApiError from "../../utils/ApiError.js";
 import tokenTypes from "../../config/tokens.js";
 import bcrypt from "bcrypt";
 
-/**
- * Login with username and password
- * @param {string} email
- * @param {string} password
- * @returns {Promise<User>}
- */
 const loginUserWithEmailAndPassword = async (
   email: string,
   password: string
@@ -22,33 +16,18 @@ const loginUserWithEmailAndPassword = async (
   return { ...user, ...{ password: undefined } };
 };
 
-/**
- * Logout
- * @param {string} refreshToken
- * @returns {Promise}
- */
-// eslint-disable-next-line
-const logout = async (refreshToken: string) => {
-  throw new ApiError(
-    httpStatus.INTERNAL_SERVER_ERROR,
-    "Method not implemented"
-  );
-  // const refreshTokenDoc = await Token.findOne({
-  //   token: refreshToken,
-  //   type: tokenTypes.REFRESH,
-  //   blacklisted: false
-  // });
-  // if (!refreshTokenDoc) {
-  //   throw new ApiError(httpStatus.NOT_FOUND, "Not found");
-  // }
-  // await refreshTokenDoc.deleteOne();
+const logout = async (token: string) => {
+  const refreshToken = await tokenService.findToken({
+    token,
+    type: tokenTypes.REFRESH,
+    revoked: false
+  });
+  if (!refreshToken) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Not found");
+  }
+  await tokenService.deleteToken(refreshToken.id);
 };
 
-/**
- * Refresh auth tokens
- * @param {string} refreshToken
- * @returns {Promise<Object>}
- */
 const refreshAuth = async (refreshToken: string) => {
   try {
     const user = await tokenService.verifyToken(
@@ -65,12 +44,6 @@ const refreshAuth = async (refreshToken: string) => {
   }
 };
 
-/**
- * Reset password
- * @param {string} resetPasswordToken
- * @param {string} newPassword
- * @returns {Promise}
- */
 const resetPassword = async (
   // eslint-disable-next-line
   resetPasswordToken: string | undefined,
@@ -90,10 +63,13 @@ const resetPassword = async (
  */
 // eslint-disable-next-line
 const verifyEmail = async (verifyEmailToken: string) => {
-  throw new ApiError(
-    httpStatus.INTERNAL_SERVER_ERROR,
-    "Method not implemented"
+  const user = await tokenService.verifyToken(
+    verifyEmailToken,
+    tokenTypes.VERIFY_EMAIL
   );
+
+  await tokenService.deleteManyTokens(user.id, tokenTypes.VERIFY_EMAIL);
+  await userService.updateUserById(user.id, { is_email_verified: true });
 };
 
 export default {

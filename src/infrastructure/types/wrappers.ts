@@ -1,7 +1,9 @@
 import type { Selectable, Insertable, Updateable } from "kysely";
 import type { User, Token } from "./db";
 
-export type SelectableUser = Selectable<User>;
+export type PrivateUser = Selectable<User>;
+export type PublicUser = Omit<PrivateUser, "password">;
+
 export type InsertableUser = Insertable<User>;
 export type UpdatableUser = Updateable<User>;
 

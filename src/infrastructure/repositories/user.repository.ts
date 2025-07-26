@@ -1,9 +1,5 @@
 import { db } from "../clients/db.client";
-import {
-  SelectableUser,
-  InsertableUser,
-  UpdatableUser
-} from "../types/wrappers";
+import { InsertableUser, UpdatableUser, PublicUser } from "../types/wrappers";
 
 export const USER_COLUMNS = [
   "id",
@@ -14,7 +10,7 @@ export const USER_COLUMNS = [
   "created_at",
   "updated_at",
   "metadata"
-] satisfies ReadonlyArray<keyof SelectableUser>;
+] satisfies ReadonlyArray<keyof PublicUser>;
 
 const insertOne = async (user: InsertableUser) => {
   return await db
@@ -34,22 +30,22 @@ const findByEmailOrUsername = async (identifier: string) => {
     .executeTakeFirst();
 };
 
-const findOne = async (criteria: Partial<SelectableUser>) => {
-  return Object.keys(criteria)
+const findOne = async (criteria: Partial<PublicUser>) => {
+  return await Object.keys(criteria)
     .reduce((acc, key) => {
-      const value = criteria[key as keyof SelectableUser];
-      if (value) acc = acc.where(key as keyof SelectableUser, "=", value);
+      const value = criteria[key as keyof PublicUser];
+      if (value) acc = acc.where(key as keyof PublicUser, "=", value);
       return acc;
     }, db.selectFrom("user"))
     .select(USER_COLUMNS)
     .executeTakeFirst();
 };
 
-const findMany = async (criteria: Partial<SelectableUser>) => {
-  return Object.keys(criteria)
+const findMany = async (criteria: Partial<PublicUser>) => {
+  return await Object.keys(criteria)
     .reduce((acc, key) => {
-      const value = criteria[key as keyof SelectableUser];
-      if (value) acc = acc.where(key as keyof SelectableUser, "=", value);
+      const value = criteria[key as keyof PublicUser];
+      if (value) acc = acc.where(key as keyof PublicUser, "=", value);
       return acc;
     }, db.selectFrom("user"))
     .select(USER_COLUMNS)

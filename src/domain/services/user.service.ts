@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 import {
   InsertableUser,
-  SelectableUser,
+  PublicUser,
   UpdatableUser
 } from "../../infrastructure/types/wrappers.js";
 
@@ -32,7 +32,7 @@ const findUserByEmailOrUsername = async (identifier: string) => {
   return userRepository.findByEmailOrUsername(identifier);
 };
 
-const findUser = async (criteria: Partial<SelectableUser>) => {
+const findUser = async (criteria: Partial<PublicUser>) => {
   return userRepository.findOne(criteria);
 };
 
