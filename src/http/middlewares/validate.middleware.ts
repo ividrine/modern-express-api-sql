@@ -1,25 +1,39 @@
-import Joi from "joi";
 import httpStatus from "http-status";
-import pick from "../../utils/pick.js";
 import ApiError from "../../utils/ApiError.js";
 import { Request, Response, NextFunction } from "express";
 
-const validate =
-  (schema: object) => (req: Request, res: Response, next: NextFunction) => {
-    const validSchema = pick(schema, ["params", "query", "body"]);
-    const object = pick(req, Object.keys(validSchema));
-    const { value, error } = Joi.compile(validSchema)
-      .prefs({ errors: { label: "key" }, abortEarly: false })
-      .validate(object);
+import { ZodType, ZodError } from "zod";
 
-    if (error) {
-      const errorMessage = error.details
-        .map((details) => details.message)
-        .join(", ");
-      return next(new ApiError(httpStatus.BAD_REQUEST, errorMessage));
+export type APIRequestSchema = {
+  params?: ZodType;
+  query?: ZodType;
+  body?: ZodType;
+};
+
+const validate =
+  (schema: APIRequestSchema) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (schema.params) {
+        req.params = schema.params.parse(req.params) as Record<string, string>;
+      }
+      if (schema.query) {
+        req.query = schema.query.parse(req.query) as Record<string, string>;
+      }
+      if (schema.body) {
+        req.body = schema.body.parse(req.body);
+      }
+      return next();
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const errorMessage = err.issues
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join(", ");
+        return next(new ApiError(httpStatus.BAD_REQUEST, errorMessage));
+      } else {
+        return next(err);
+      }
     }
-    Object.assign(req, value);
-    return next();
   };
 
 export default validate;

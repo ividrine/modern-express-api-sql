@@ -1,51 +1,71 @@
-import Joi from "joi";
-import { password } from "./custom.validation";
+import * as z from "zod";
+import {
+  PW_LENGTH_ERROR,
+  PW_PATTERN_ERROR
+} from "../constants/errors.constants";
+import { APIRequestSchema } from "../middlewares/validate.middleware";
 
-const register = {
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().custom(password),
-    username: Joi.string().required()
+const register: APIRequestSchema = {
+  body: z.strictObject({
+    email: z.email(),
+    username: z.string(),
+    password: z
+      .string()
+      .min(8, PW_LENGTH_ERROR)
+      .refine(
+        (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
+        {
+          message: PW_PATTERN_ERROR
+        }
+      )
   })
 };
 
-const login = {
-  body: Joi.object().keys({
-    email: Joi.string().required(),
-    password: Joi.string().required()
+const login: APIRequestSchema = {
+  body: z.strictObject({
+    identifier: z.string(),
+    password: z.string()
   })
 };
 
-const logout = {
-  body: Joi.object().keys({
-    refreshToken: Joi.string().required()
+const logout: APIRequestSchema = {
+  body: z.strictObject({
+    refreshToken: z.string()
   })
 };
 
-const refreshTokens = {
-  body: Joi.object().keys({
-    refreshToken: Joi.string().required()
+const refreshTokens: APIRequestSchema = {
+  body: z.strictObject({
+    refreshToken: z.string()
   })
 };
 
-const forgotPassword = {
-  body: Joi.object().keys({
-    email: Joi.string().email().required()
+const forgotPassword: APIRequestSchema = {
+  body: z.strictObject({
+    identifier: z.string() || z.email()
   })
 };
 
-const resetPassword = {
-  query: Joi.object().keys({
-    token: Joi.string().required()
+const resetPassword: APIRequestSchema = {
+  query: z.strictObject({
+    token: z.string()
   }),
-  body: Joi.object().keys({
-    password: Joi.string().required().custom(password)
+  body: z.strictObject({
+    password: z
+      .string()
+      .min(8, PW_LENGTH_ERROR)
+      .refine(
+        (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
+        {
+          message: PW_PATTERN_ERROR
+        }
+      )
   })
 };
 
-const verifyEmail = {
-  query: Joi.object().keys({
-    token: Joi.string().required()
+const verifyEmail: APIRequestSchema = {
+  query: z.strictObject({
+    token: z.string()
   })
 };
 

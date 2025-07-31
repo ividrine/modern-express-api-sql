@@ -1,48 +1,62 @@
-import Joi from "joi";
-import { password } from "./custom.validation";
+import * as z from "zod";
+import {
+  PW_LENGTH_ERROR,
+  PW_PATTERN_ERROR
+} from "../constants/errors.constants";
 
 const createUser = {
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().custom(password),
-    name: Joi.string().required(),
-    role: Joi.string().required().valid("user", "admin")
+  body: z.strictObject({
+    email: z.email(),
+    password: z
+      .string()
+      .min(8, PW_LENGTH_ERROR)
+      .refine(
+        (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
+        {
+          message: PW_PATTERN_ERROR
+        }
+      ),
+    username: z.string(),
+    role: z.enum(["user", "admin"])
   })
 };
 
 const getUsers = {
-  query: Joi.object().keys({
-    name: Joi.string(),
-    role: Joi.string(),
-    sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer()
+  query: z.strictObject({
+    username: z.string(),
+    role: z.string(),
+    sortBy: z.string(),
+    limit: z.number().int(),
+    page: z.number().int()
   })
 };
 
 const getUser = {
-  params: Joi.object().keys({
-    userId: Joi.string().required()
+  params: z.strictObject({
+    userId: z.string()
   })
 };
 
 const updateUser = {
-  params: Joi.object().keys({
-    userId: Joi.string().required()
-  }),
-  body: Joi.object()
-    .keys({
-      email: Joi.string().email(),
-      password: Joi.string().custom(password),
-      name: Joi.string()
-    })
-    .min(1)
+  params: z.strictObject({ userId: z.string() }),
+  body: z.object({
+    email: z.email().optional(),
+    username: z.string().optional(),
+    password: z
+      .string()
+      .min(8, PW_LENGTH_ERROR)
+      .refine(
+        (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
+        {
+          message: PW_PATTERN_ERROR
+        }
+      )
+      .optional()
+  })
 };
 
 const deleteUser = {
-  params: Joi.object().keys({
-    userId: Joi.string().required()
-  })
+  params: z.strictObject({ userId: z.string() })
 };
 
 export default {
