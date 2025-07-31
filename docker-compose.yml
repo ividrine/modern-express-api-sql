@@ -20,7 +20,7 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/data/db'
-      - ./kysely/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
 
     # Allows app to wait for container boostrap https://docs.docker.com/reference/dockerfile/#healthcheck
 
