@@ -7,7 +7,7 @@ export default defineConfig({
     pool: new Pool({ connectionString: process.env.DATABASE_URL })
   },
   migrations: {
-    migrationFolder: "kysely/migrations",
+    migrationFolder: "db/migrations",
     getMigrationPrefix: getKnexTimestampPrefix
   }
 
