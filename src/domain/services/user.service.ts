@@ -4,45 +4,38 @@ import bcrypt from "bcrypt";
 
 import {
   InsertableUser,
-  PublicUser,
+  SelectableUser,
   UpdatableUser
 } from "../../infrastructure/types/wrappers.js";
 
 import userRepository from "../../infrastructure/repositories/user.repository.js";
+import {
+  QueryObject,
+  QueryOptions
+} from "../../infrastructure/types/queries.js";
 
 const saltRounds = 10;
-/**
- * Create a user
- * @param {Object} userBody
- * @returns {Promise<User>}
- */
-const createUser = async (userBody: InsertableUser) => {
+
+const create = async (userBody: InsertableUser) => {
   if (await userRepository.isEmailTaken(userBody.email))
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
+
+  if (await userRepository.isUsernameTaken(userBody.username))
+    throw new ApiError(httpStatus.BAD_REQUEST, "Username already taken");
+
   const password = await bcrypt.hash(userBody.password, saltRounds);
   const user = { ...userBody, ...{ password } };
   return userRepository.insertOne(user);
 };
-/**
- * Get user by id
- * @param {ObjectId} id
- * @returns {Promise<User>}
- */
-const findUserByEmailOrUsername = async (identifier: string) => {
-  return userRepository.findByEmailOrUsername(identifier);
+
+const findOne = async (
+  query?: QueryObject<SelectableUser>,
+  options?: QueryOptions
+) => {
+  return userRepository.findOne(query, options);
 };
 
-const findUser = async (criteria: Partial<PublicUser>) => {
-  return userRepository.findOne(criteria);
-};
-
-/**
- * Update user by id
- * @param {ObjectId} userId
- * @param {Object} updateBody
- * @returns {Promise<User>}
- */
-const updateUserById = async (userId: string, updateBody: UpdatableUser) => {
+const updateOne = async (userId: string, updateBody: UpdatableUser) => {
   const user = await userRepository.findOne({ id: userId });
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
@@ -58,26 +51,20 @@ const updateUserById = async (userId: string, updateBody: UpdatableUser) => {
   await userRepository.updateOne(userId, updateBody);
 };
 
-/**
- * Delete user by id
- * @param {ObjectId} userId
- * @returns {Promise<User>}
- */
-const deleteUserById = async (userId: string) => {
+const remove = async (userId: string) => {
   const user = await userRepository.findOne({ id: userId });
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  await userRepository.deleteOne(userId);
+  await userRepository.remove({ id: user.id });
   return user;
 };
 
 export default {
-  createUser,
-  findUserByEmailOrUsername,
-  findUser,
-  updateUserById,
-  deleteUserById
+  create,
+  findOne,
+  updateOne,
+  remove
 };

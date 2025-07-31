@@ -1,5 +1,11 @@
 import { db } from "../clients/db.client";
-import { InsertableUser, UpdatableUser, PublicUser } from "../types/wrappers";
+import { QueryObject, QueryOptions } from "../types/queries";
+import filter from "../utils/filter";
+import {
+  InsertableUser,
+  UpdatableUser,
+  SelectableUser
+} from "../types/wrappers";
 
 export const USER_COLUMNS = [
   "id",
@@ -10,58 +16,40 @@ export const USER_COLUMNS = [
   "created_at",
   "updated_at",
   "metadata"
-] satisfies ReadonlyArray<keyof PublicUser>;
+] satisfies ReadonlyArray<keyof SelectableUser>;
 
 const insertOne = async (user: InsertableUser) => {
-  return await db
+  return (await db
     .insertInto("user")
     .values(user)
     .returning(USER_COLUMNS)
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow()) as SelectableUser;
 };
 
-const findByEmailOrUsername = async (identifier: string) => {
-  return await db
-    .selectFrom("user")
-    .where((eb) =>
-      eb.or([eb("email", "=", identifier), eb("username", "=", identifier)])
-    )
-    .selectAll()
-    .executeTakeFirst();
+const findOne = async (
+  query: QueryObject<SelectableUser> = {},
+  options: QueryOptions = { omitSensitive: true }
+) => {
+  let qb = db.selectFrom("user");
+  qb = filter(qb, query);
+  qb = options.omitSensitive ? qb.select(USER_COLUMNS) : qb.selectAll();
+  return (await qb.executeTakeFirst()) as SelectableUser;
 };
 
-const findOne = async (criteria: Partial<PublicUser>) => {
-  return await Object.keys(criteria)
-    .reduce((acc, key) => {
-      const value = criteria[key as keyof PublicUser];
-      if (value) acc = acc.where(key as keyof PublicUser, "=", value);
-      return acc;
-    }, db.selectFrom("user"))
-    .select(USER_COLUMNS)
-    .executeTakeFirst();
-};
-
-const findMany = async (criteria: Partial<PublicUser>) => {
-  return await Object.keys(criteria)
-    .reduce((acc, key) => {
-      const value = criteria[key as keyof PublicUser];
-      if (value) acc = acc.where(key as keyof PublicUser, "=", value);
-      return acc;
-    }, db.selectFrom("user"))
-    .select(USER_COLUMNS)
-    .execute();
+const findMany = async (query: QueryObject<SelectableUser> = {}) => {
+  let qb = db.selectFrom("user");
+  qb = filter(qb, query);
+  return (await qb.select(USER_COLUMNS).execute()) as SelectableUser[];
 };
 
 const updateOne = async (id: string, updateWith: UpdatableUser) => {
   await db.updateTable("user").set(updateWith).where("id", "=", id).execute();
 };
 
-const deleteOne = async (id: string) => {
-  return await db
-    .deleteFrom("user")
-    .where("id", "=", id)
-    .returning(USER_COLUMNS)
-    .executeTakeFirst();
+const remove = async (query: QueryObject<SelectableUser> = {}) => {
+  let qb = db.deleteFrom("user");
+  qb = filter(qb, query);
+  return await qb.returningAll().execute();
 };
 
 const isEmailTaken = async (email: string, userId?: string) => {
@@ -82,11 +70,10 @@ const isUsernameTaken = async (username: string) => {
 
 export default {
   insertOne,
-  findByEmailOrUsername,
   findOne,
   findMany,
   updateOne,
-  deleteOne,
+  remove,
   isEmailTaken,
   isUsernameTaken
 };

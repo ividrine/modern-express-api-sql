@@ -8,7 +8,7 @@ import userService from "./user.service.js";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import tokenRepository from "../../infrastructure/repositories/token.repository.js";
 import {
-  PublicUser,
+  SelectableUser,
   SelectableToken
 } from "../../infrastructure/types/wrappers.js";
 
@@ -21,25 +21,9 @@ const generateToken = async (payload: JWTPayload): Promise<string> => {
     .sign(new TextEncoder().encode(config.jwt.secret));
 };
 
-const verifyToken = async (token: string, type: string) => {
-  const verifyResult = await jwtVerify(
-    token,
-    new TextEncoder().encode(config.jwt.secret)
-  );
-  const user = await tokenRepository.findOneUser({
-    token,
-    userId: verifyResult.payload.sub,
-    type,
-    revoked: false
-  });
-
-  if (!user) {
-    throw new Error("Token not found");
-  }
-  return user;
-};
-
-const generateAuthTokens = async (user: PublicUser) => {
+const generateAuthTokens = async (
+  user: Pick<SelectableUser, "id" | "role" | "email">
+) => {
   const accessTokenExpires = dayjs().add(
     config.jwt.accessExpirationMinutes,
     "minutes"
@@ -87,7 +71,7 @@ const generateAuthTokens = async (user: PublicUser) => {
 };
 
 const generateResetPasswordToken = async (email: string) => {
-  const user = await userService.findUser({ email });
+  const user = await userService.findOne({ email });
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
   }
@@ -136,25 +120,39 @@ const generateVerifyEmailToken = async (userId: string) => {
   return verifyEmailToken;
 };
 
-const deleteToken = async (tokenId: string) => {
-  return await tokenRepository.deleteOne(tokenId);
+const verifyToken = async (token: string, type: string) => {
+  const verifyResult = await jwtVerify(
+    token,
+    new TextEncoder().encode(config.jwt.secret)
+  );
+  const user = await tokenRepository.findUser({
+    token,
+    userId: verifyResult.payload.sub,
+    type,
+    revoked: false
+  });
+
+  if (!user) {
+    throw new Error("Token not found");
+  }
+
+  return user;
 };
 
-const deleteManyTokens = async (userId: string, type: string) => {
-  return await tokenRepository.deleteMany(userId, type);
-};
-
-const findToken = async (token: Partial<SelectableToken>) => {
+const findOne = async (token: Partial<SelectableToken>) => {
   return await tokenRepository.findOne(token);
+};
+
+const remove = async (token: Partial<SelectableToken>) => {
+  return await tokenRepository.remove(token);
 };
 
 export default {
   generateToken,
-  deleteToken,
-  deleteManyTokens,
-  verifyToken,
-  findToken,
   generateAuthTokens,
   generateResetPasswordToken,
-  generateVerifyEmailToken
+  generateVerifyEmailToken,
+  verifyToken,
+  findOne,
+  remove
 };

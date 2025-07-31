@@ -6,18 +6,19 @@ import {
   tokenService,
   emailService
 } from "../../domain/services";
+import ApiError from "../../utils/ApiError";
 
 const register = catchAsync(async (req, res) => {
-  const user = await userService.createUser(req.body);
+  const user = await userService.create(req.body);
   const tokens = await tokenService.generateAuthTokens(user);
   res.status(httpStatus.CREATED).send({ user, tokens });
 });
 
 const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const user = await authService.loginUserWithEmailAndPassword(email, password);
+  const { identifier, password } = req.body;
+  const user = await authService.loginWithPassword(identifier, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.send({ user, tokens });
+  res.send({ tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -31,10 +32,18 @@ const refreshTokens = catchAsync(async (req, res) => {
 });
 
 const forgotPassword = catchAsync(async (req, res) => {
+  const user = await userService.findOne({
+    $or: [{ username: req.body.identifier, email: req.body.identifier }]
+  });
+
+  if (!user) throw new ApiError(httpStatus.BAD_REQUEST, "Error fetching user");
+
   const resetPasswordToken = await tokenService.generateResetPasswordToken(
-    req.body.email
+    user.email
   );
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
+
+  await emailService.sendResetPasswordEmail(user.email, resetPasswordToken);
+
   res.status(httpStatus.NO_CONTENT).send();
 });
 
