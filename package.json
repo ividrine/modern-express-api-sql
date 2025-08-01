@@ -2,6 +2,7 @@
   "name": "create-express-sql-app",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "dist/index.js",
   "bin": "bin/createApp.js",
   "scripts": {
@@ -9,7 +10,7 @@
     "dev": "docker-compose up --build --wait -d && dotenv -e .env -- kysely migrate latest && tsx watch --env-file=.env src/index.ts --inspect-brk",
     "prod": "node dist/index.js",
     "test": "",
-    "prepare": "husky install",
+    "prepare": "husky",
     "envup": "docker-compose up --build -d",
     "envdown": "docker-compose down",
     "migrate:make": "kysely migrate make",
@@ -18,9 +19,9 @@
     "generate:dev": "kysely-codegen --env-file .env --out-file ./src/infrastructure/types/db.ts"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.13.1",
+  "author": "Isaac Vidrine",
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/compression": "^1.8.1",
@@ -54,6 +55,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "chalk": "^5.4.1",
     "compression": "^1.8.1",
     "dayjs": "^1.11.13",
     "express": "^5.1.0",
