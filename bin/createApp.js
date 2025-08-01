@@ -123,8 +123,12 @@ const main = () => {
 
   if (!hasPnpm) {
     const pnpmLock = join(process.cwd(), "pnpm-lock.yaml");
+    const pnpmWs = join(process.cwd(), "pnpm-workspace.yaml");
     if (existsSync(pnpmLock)) {
       rmSync(pnpmLock, { force: true });
+    }
+    if (existsSync(pnpmWs)) {
+      rmSync(pnpmWs, { force: true });
     }
   }
 
