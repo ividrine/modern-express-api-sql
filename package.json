@@ -1,8 +1,9 @@
 {
-  "name": "modern-express-api-sql",
+  "name": "create-express-sql-app",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "bin": "bin/createApp.js",
   "scripts": {
     "build": "tsc",
     "dev": "docker-compose up --build --wait -d && dotenv -e .env -- kysely migrate latest && tsx watch --env-file=.env src/index.ts --inspect-brk",
