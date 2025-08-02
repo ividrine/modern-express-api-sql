@@ -17,9 +17,9 @@
     "envup": "docker-compose up --build -d",
     "envdown": "docker-compose down",
     "migrate:make": "kysely migrate make",
-    "migrate:dev": "dotenv -e .env -- kysely migrate latest",
+    "migrate:latest:dev": "dotenv -e .env -- kysely migrate latest",
     "migrate:rollback:dev": "dotenv -e .env -- kysely migrate rollback",
-    "generate:dev": "kysely-codegen --env-file .env --out-file ./src/infrastructure/types/db.ts"
+    "generate:dev": "kysely-codegen --env-file .env --out-file ./src/infrastructure/types/db.d.ts"
   },
   "keywords": [
     "node",
@@ -86,7 +86,7 @@
     "http-status": "^2.1.0",
     "iovalkey": "^0.3.3",
     "jose": "^6.0.12",
-    "kysely": "^0.28.3",
+    "kysely": "^0.28.4",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.5",
     "ora": "^8.2.0",
