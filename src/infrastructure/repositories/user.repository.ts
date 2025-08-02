@@ -1,11 +1,11 @@
-import { db } from "../clients/db.client";
-import { QueryObject, QueryOptions } from "../types/queries";
-import filter from "../utils/filter";
+import { db } from "../clients/db.client.js";
+import { QueryObject, QueryOptions } from "../types/query.js";
+import filter from "../utils/filter.js";
 import {
   InsertableUser,
   UpdatableUser,
   SelectableUser
-} from "../types/wrappers";
+} from "../types/wrappers.d.js";
 
 export const USER_COLUMNS = [
   "id",

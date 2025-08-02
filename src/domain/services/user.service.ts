@@ -9,10 +9,7 @@ import {
 } from "../../infrastructure/types/wrappers.js";
 
 import userRepository from "../../infrastructure/repositories/user.repository.js";
-import {
-  QueryObject,
-  QueryOptions
-} from "../../infrastructure/types/queries.js";
+import { QueryObject, QueryOptions } from "../../infrastructure/types/query.js";
 
 const saltRounds = 10;
 

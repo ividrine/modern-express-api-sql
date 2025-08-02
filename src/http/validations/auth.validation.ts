@@ -3,6 +3,7 @@ import {
   PW_LENGTH_ERROR,
   PW_PATTERN_ERROR
 } from "../constants/errors.constants.js";
+
 import { APIRequestSchema } from "../middlewares/validate.middleware.js";
 
 const register: APIRequestSchema = {

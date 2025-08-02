@@ -1,11 +1,11 @@
-import { db } from "../clients/db.client";
+import { db } from "../clients/db.client.js";
 import type {
   SelectableToken,
   InsertableToken,
   SelectableUser
-} from "../types/wrappers";
+} from "../types/wrappers.js";
 
-import { USER_COLUMNS } from "./user.repository";
+import { USER_COLUMNS } from "./user.repository.js";
 
 const USER_JOIN_COLUMNS = USER_COLUMNS.map(
   (col) => `user.${col}`
