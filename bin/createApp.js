@@ -2,19 +2,9 @@
 
 import { execSync } from "child_process";
 import { chdir } from "process";
-import chalk from "chalk";
 import { join } from "path";
-import {
-  existsSync,
-  mkdirSync,
-  copyFileSync,
-  rmSync,
-  readFileSync,
-  writeFileSync
-} from "fs";
-
-const log = (emoji, color, message) =>
-  console.log(`${emoji} ${chalk[color](message)}`);
+import ora from "ora";
+import { existsSync, mkdirSync, copyFileSync, rmSync } from "fs";
 
 const checkPnpm = () => {
   try {
@@ -25,102 +15,120 @@ const checkPnpm = () => {
   }
 };
 
-const runCommand = (command, errorMessage) => {
+const runCommand = (command, success, error) => {
   try {
     execSync(command, { stdio: "inherit" });
-  } catch (error) {
-    log("❌", "red", errorMessage);
+    success && success();
+  } catch {
+    error && error();
     process.exit(1);
   }
 };
 
 const main = () => {
   // Check for required arguments
+
+  let spinner = ora({ text: "", spinner: "dots" }).start();
+
   if (process.argv.length < 3) {
-    log("❌", "red", "Please specify a project directory");
+    spinner.fail("Please specify a project directory");
     process.exit(1);
   }
 
   const projectDir = process.argv[2];
 
   // Check for pnpm
-  log("🔍", "cyan", "Checking for pnpm...");
 
+  spinner.text = "Checking for pnpm...";
   const hasPnpm = checkPnpm();
 
-  log(
-    hasPnpm ? "✅" : "⚠️",
-    hasPnpm ? "green" : "yellow",
-    hasPnpm ? "pnpm found!" : "pnpm not found, will use npm"
-  );
+  if (hasPnpm) {
+    spinner.succeed("pnpm found!");
+  } else {
+    spinner.warn("pnpm not found, will use npm");
+  }
 
-  // Create project directory
-  log("📁", "blue", `Creating directory ${projectDir}...`);
+  // Create project directory / clone
+  spinner = ora({
+    text: `Cloning into project directory ${projectDir}...`,
+    spinner: "dots"
+  }).start();
 
   if (existsSync(projectDir)) {
-    log("❌", "red", `Directory ${projectDir} already exists`);
+    spinner.fail(`Directory ${projectDir} already exists`);
     process.exit(1);
   }
 
   mkdirSync(projectDir, { recursive: true });
 
-  // Clone repo and change directory
-  log("📦", "magenta", "Cloning template repository...");
-
   runCommand(
     `git clone --quiet https://github.com/ividrine/modern-express-api-sql.git ${projectDir}`,
-    "Failed to clone repository"
+    () => spinner.succeed(),
+    () => spinner.fail("Failed to clone repository")
   );
-
-  log("🚀", "blue", `Changing to project directory ${projectDir}...`);
 
   chdir(projectDir);
 
-  // Remove chalk as project dependency
-  log("✅", "green", "Removing unnecessary dependencies");
-  const packageJsonPath = join(process.cwd(), "package.json");
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+  // Remove ora as dependency since its only needed for this script
 
-  if (packageJson.dependencies?.chalk) {
-    delete packageJson.dependencies.chalk;
-  }
-  if (packageJson.devDependencies?.chalk) {
-    delete packageJson.devDependencies.chalk;
-  }
+  spinner = ora({
+    text: "Removing unnecessary dependencies...",
+    spinner: "dots"
+  }).start();
 
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), "utf8");
+  let oraRemoveCmd = hasPnpm ? "pnpm rm ora" : "npm uninstall ora --save";
+
+  runCommand(
+    `${oraRemoveCmd} --silent`,
+    () => spinner.succeed(),
+    () =>
+      spinner.warn(
+        `Unable to remove ora. You will need to run '${oraRemoveCmd}' to manually remove.`
+      )
+  );
 
   // Install dependencies
-  log("⚙️", "yellow", "Installing project dependencies...");
+
+  spinner = ora({
+    text: "Installing dependencies...",
+    spinner: "dots"
+  }).start();
+
+  let installCmd = hasPnpm ? "pnpm install" : "npm install";
+
   runCommand(
-    hasPnpm ? "pnpm install" : "npm install",
-    "Failed to install dependencies"
+    `${installCmd} --silent`,
+    () => spinner.succeed(),
+    () =>
+      spinner.warn(
+        `Unable to install packages. You will need to run '${installCmd}' manually to see full output log.`
+      )
   );
 
   // Copy environment file
-  log("📝", "green", "Copying .env.example to .env...");
+
+  spinner = ora({ text: "Creating env file...", spinner: "dots" }).start();
 
   const envExamplePath = join(process.cwd(), ".env.example");
   const envPath = join(process.cwd(), ".env");
 
-  if (existsSync(envExamplePath)) {
-    copyFileSync(envExamplePath, envPath);
-  } else {
-    log("⚠️", "yellow", ".env.example not found");
-  }
+  copyFileSync(envExamplePath, envPath);
 
-  // Clean up
-  log("🗑️", "red", "Cleaning up...");
+  spinner.succeed();
+
+  spinner = ora({ text: "Cleaning up...", spinner: "dots" }).start();
+
+  // Remove git
   const gitDir = join(process.cwd(), ".git");
-  if (existsSync(gitDir)) {
-    rmSync(gitDir, { recursive: true, force: true });
-  }
+  rmSync(gitDir, { recursive: true, force: true });
 
+  // Remove create app script
   const createAppScript = join(process.cwd(), "bin", "createApp.js");
   if (existsSync(createAppScript)) {
     rmSync(createAppScript, { force: true });
   }
 
+  // Remove pnpm files if needed
   if (!hasPnpm) {
     const pnpmLock = join(process.cwd(), "pnpm-lock.yaml");
     const pnpmWs = join(process.cwd(), "pnpm-workspace.yaml");
@@ -132,11 +140,7 @@ const main = () => {
     }
   }
 
-  // Remove chalk from package.json
-
-  log(
-    "🎉",
-    "green",
+  spinner.succeed(
     `Project setup complete! Run ${hasPnpm ? "pnpm" : "npm"} dev to launch your app!`
   );
 };
