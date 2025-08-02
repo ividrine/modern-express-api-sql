@@ -1,5 +1,5 @@
 import type { Selectable, Insertable, Updateable } from "kysely";
-import type { User, Token } from "./db";
+import type { User, Token } from "./db.d.js";
 
 export type SelectableUser = Selectable<User>;
 export type InsertableUser = Insertable<User>;

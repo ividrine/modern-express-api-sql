@@ -1,8 +1,8 @@
 import { Pool } from "pg";
-import config from "../../config/config";
+import config from "../../config/config.js";
 import { Kysely, PostgresDialect } from "kysely";
-import logger from "../../config/logger";
-import type { DB } from "../types/db";
+import logger from "../../config/logger.js";
+import type { DB } from "../types/db.d.js";
 
 const pool = new Pool({
   connectionString: config.db_url

@@ -1,12 +1,12 @@
 import httpStatus from "http-status";
-import catchAsync from "../../utils/catchAsync";
+import catchAsync from "../../utils/catchAsync.js";
 import {
   authService,
   userService,
   tokenService,
   emailService
-} from "../../domain/services";
-import ApiError from "../../utils/ApiError";
+} from "../../domain/services/index.js";
+import ApiError from "../../utils/ApiError.js";
 
 const register = catchAsync(async (req, res) => {
   const user = await userService.create(req.body);

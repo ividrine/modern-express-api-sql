@@ -3,7 +3,7 @@ import {
   READ_USERS,
   UPDATE_USERS,
   DELETE_USERS
-} from "./permissions";
+} from "./permissions.js";
 
 const allRoles = {
   user: [],

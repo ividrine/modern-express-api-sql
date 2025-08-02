@@ -1,10 +1,10 @@
 import { auth } from "express-oauth2-jwt-bearer";
-import config from "../../config/config";
+import config from "../../config/config.js";
 import httpStatus from "http-status";
 import type { Request, Response, NextFunction } from "express";
-import ApiError from "../../utils/ApiError";
-import tokenTypes from "../../config/tokens";
-import { roleRights } from "../../config/roles";
+import ApiError from "../../utils/ApiError.js";
+import tokenTypes from "../../config/tokens.js";
+import { roleRights } from "../../config/roles.js";
 
 export const authorize = (...permissions: string[]) => [
   auth({

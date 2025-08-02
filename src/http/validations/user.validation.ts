@@ -2,7 +2,7 @@ import * as z from "zod";
 import {
   PW_LENGTH_ERROR,
   PW_PATTERN_ERROR
-} from "../constants/errors.constants";
+} from "../constants/errors.constants.js";
 
 const createUser = {
   body: z.strictObject({

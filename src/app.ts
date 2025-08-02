@@ -1,11 +1,11 @@
 import express from "express";
-import config from "./config/config";
+import config from "./config/config.js";
 import helmet from "helmet";
 import httpStatus from "http-status";
 import ApiError from "./utils/ApiError.js";
 import compression from "compression";
-import routes from "./http/routes/v1";
-import { authLimiter } from "./http/middlewares/rateLimiter.middleware";
+import routes from "./http/routes/v1/index.js";
+import { authLimiter } from "./http/middlewares/rateLimiter.middleware.js";
 import {
   errorConverter,
   errorHandler
