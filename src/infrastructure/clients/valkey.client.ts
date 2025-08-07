@@ -2,7 +2,7 @@ import Valkey from "iovalkey";
 import config from "../../config/config.js";
 import logger from "../../config/logger.js";
 
-export const valkey = new Valkey(config.valkey_url);
+export const valkey = new Valkey.default(config.valkey_url);
 
 valkey.on("error", (err) => {
   logger.error("[VALKEY] client error:", err);
