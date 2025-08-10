@@ -4,12 +4,12 @@ import helmet from "helmet";
 import httpStatus from "http-status";
 import ApiError from "./utils/ApiError.js";
 import compression from "compression";
-import routes from "./http/routes/v1/index.js";
-import { authLimiter } from "./http/middlewares/rateLimiter.middleware.js";
+import routes from "./routes/v1/index.js";
+import { authLimiter } from "./middlewares/rateLimiter.middleware.js";
 import {
   errorConverter,
   errorHandler
-} from "./http/middlewares/error.middleware.js";
+} from "./middlewares/error.middleware.js";
 
 const app = express();
 

@@ -2,7 +2,7 @@ import * as z from "zod";
 import {
   PW_LENGTH_ERROR,
   PW_PATTERN_ERROR
-} from "../constants/errors.constants.js";
+} from "../constants/validate.constants.js";
 
 import { APIRequestSchema } from "../middlewares/validate.middleware.js";
 

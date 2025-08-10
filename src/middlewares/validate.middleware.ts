@@ -1,7 +1,6 @@
 import httpStatus from "http-status";
-import ApiError from "../../utils/ApiError.js";
+import ApiError from "../utils/ApiError.js";
 import { Request, Response, NextFunction } from "express";
-
 import { ZodType, ZodError } from "zod";
 
 export type APIRequestSchema = {

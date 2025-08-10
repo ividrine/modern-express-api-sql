@@ -1,10 +1,10 @@
 import { auth } from "express-oauth2-jwt-bearer";
-import config from "../../config/config.js";
+import config from "../config/config.js";
 import httpStatus from "http-status";
 import type { Request, Response, NextFunction } from "express";
-import ApiError from "../../utils/ApiError.js";
-import tokenTypes from "../../config/tokens.js";
-import { roleRights } from "../../config/roles.js";
+import ApiError from "../utils/ApiError.js";
+import { TokenType } from "@prisma/client";
+import { roleRights } from "../config/roles.js";
 
 export const authorize = (...permissions: string[]) => [
   auth({
@@ -22,7 +22,7 @@ export const authorize = (...permissions: string[]) => [
       privileges.includes(permission)
     );
 
-    if (payload?.type != tokenTypes.ACCESS) {
+    if (payload?.type != TokenType.ACCESS) {
       next(new Error("Invalid token type"));
     }
 

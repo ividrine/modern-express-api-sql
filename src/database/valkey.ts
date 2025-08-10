@@ -1,6 +1,6 @@
 import Valkey from "iovalkey";
-import config from "../../config/config.js";
-import logger from "../../config/logger.js";
+import config from "../config/config.js";
+import logger from "../config/logger.js";
 
 export const valkey = new Valkey.default(config.valkey_url);
 
