@@ -68,7 +68,6 @@ Follow the instructions for the package manager you are using. NPM is the defaul
 - Type Safety - [Typescript](https://www.typescriptlang.org/)
 - Relational Database - [PostgreSql](https://www.postgresql.org/)
 - ORM - [Prisma](https://www.prisma.io/)
-- Code First Migrations - [Kysely-ctl](https://github.com/kysely-org/kysely-ctl)
 - Cache Server - [Valkey](https://valkey.io/)
 - Request Data Validation - [Zod](https://zod.dev/)
 - Authorization - [node-oauth2-jwt-bearer](https://github.com/auth0/node-oauth2-jwt-bearer)
