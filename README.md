@@ -41,7 +41,7 @@
 
 ## About The Project
 
-This project is a flavor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) to provide type safety and work for relational databases.
+This project is a flavor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) that provides type safety and works for relational databases.
 
 ## Prerequisites
 
@@ -67,7 +67,7 @@ Follow the instructions for the package manager you are using. NPM is the defaul
 
 - Type Safety - [Typescript](https://www.typescriptlang.org/)
 - Relational Database - [PostgreSql](https://www.postgresql.org/)
-- Query Builder instead of ODM/ORM - [Kysely](https://kysely.dev/)
+- ORM - [Prisma](https://www.prisma.io/)
 - Code First Migrations - [Kysely-ctl](https://github.com/kysely-org/kysely-ctl)
 - Cache Server - [Valkey](https://valkey.io/)
 - Request Data Validation - [Zod](https://zod.dev/)
@@ -154,7 +154,3 @@ EMAIL_FROM=support@yourapp.com
 ## Logging
 
 ## Linting
-
-## Acknowledgments
-
-- [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) - for providing the foundation for this project.
