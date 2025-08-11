@@ -2,10 +2,10 @@
 
 <!-- PROJECT LOGO -->
 <div align="center">
-   <h3 align="center">Modern Express API SQL</h3>
+   <h3 align="center">Express API SQL</h3>
 
   <p align="center">
-    A modern express API boilerplate for relational databases.
+   A modern express API boilerplate for relational databases.
   </p>
 </div>
 
@@ -41,7 +41,7 @@
 
 ## About The Project
 
-There are a lot of awesome Node frameworks today to choose from like [Nest](https://nestjs.com/) and [Adonis](https://adonisjs.com/) that offer their own opinionated and structured development experiences. These can be powerful, but sometimes you might want a more custom solution. This project is a modern take on a boilerplate Node web API with the tried and true [Express](https://expressjs.com/) library. It is a large refactor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) to provide type safety and work for relational databases.
+This project is a flavor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) to provide type safety and work for relational databases.
 
 ## Prerequisites
 
