@@ -9,7 +9,7 @@ CREATE TABLE "public"."User" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "is_email_verified" BOOLEAN NOT NULL,
+    "is_email_verified" BOOLEAN NOT NULL DEFAULT false,
     "role" "public"."Role" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
