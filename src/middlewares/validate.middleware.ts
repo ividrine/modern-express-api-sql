@@ -13,22 +13,19 @@ const validate =
   (schema: APIRequestSchema) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (schema.params) {
-        req.params = schema.params.parse(req.params) as Record<string, string>;
-      }
-      if (schema.query) {
-        req.query = schema.query.parse(req.query) as Record<string, string>;
-      }
-      if (schema.body) {
-        req.body = schema.body.parse(req.body);
-      }
+      if (schema.params)
+        Object.assign(req.params, schema.params.parse(req.params));
+      if (schema.query) Object.assign(req.query, schema.query.parse(req.query));
+      if (schema.body) Object.assign(schema.body, schema.body.parse(req.body));
       return next();
     } catch (err) {
       if (err instanceof ZodError) {
-        const errorMessage = err.issues
-          .map((e) => `${e.path.join(".")}: ${e.message}`)
-          .join(", ");
-        return next(new ApiError(httpStatus.BAD_REQUEST, errorMessage));
+        return next(
+          new ApiError(
+            httpStatus.BAD_REQUEST,
+            err.issues.length > 0 ? err.issues[0].message : "Invalid request"
+          )
+        );
       } else {
         return next(err);
       }

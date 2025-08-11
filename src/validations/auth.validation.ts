@@ -1,72 +1,79 @@
 import * as z from "zod";
 import {
-  PW_LENGTH_ERROR,
-  PW_PATTERN_ERROR
+  PW_LENGTH,
+  PW_PATTERN,
+  PW_REQUIRED,
+  INVALID_EMAIL,
+  EMAIL_REQUIRED,
+  INVALID_TOKEN
 } from "../constants/validate.constants.js";
 
 import { APIRequestSchema } from "../middlewares/validate.middleware.js";
 
 const register: APIRequestSchema = {
-  body: z.strictObject({
-    email: z.email(),
-    username: z.string(),
+  body: z.object({
+    email: z.email({
+      error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
+    }),
     password: z
-      .string()
-      .min(8, PW_LENGTH_ERROR)
+      .string(PW_REQUIRED)
+      .min(8, PW_LENGTH)
       .refine(
         (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
         {
-          message: PW_PATTERN_ERROR
+          message: PW_PATTERN
         }
       )
   })
 };
 
 const login: APIRequestSchema = {
-  body: z.strictObject({
-    identifier: z.string(),
-    password: z.string()
+  body: z.object({
+    email: z.email({
+      error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
+    }),
+    password: z.string(PW_REQUIRED)
   })
 };
 
 const logout: APIRequestSchema = {
-  body: z.strictObject({
-    refreshToken: z.string()
+  body: z.object({
+    refreshToken: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 
 const refreshTokens: APIRequestSchema = {
-  body: z.strictObject({
-    refreshToken: z.string()
+  body: z.object({
+    refreshToken: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 
 const forgotPassword: APIRequestSchema = {
-  body: z.strictObject({
-    identifier: z.string() || z.email()
+  body: z.object({
+    email: z.email({
+      error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
+    })
   })
 };
 
 const resetPassword: APIRequestSchema = {
-  query: z.strictObject({
-    token: z.string()
+  query: z.object({
+    token: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   }),
-  body: z.strictObject({
+  body: z.object({
     password: z
-      .string()
-      .min(8, PW_LENGTH_ERROR)
+      .string(PW_REQUIRED)
+      .min(8, PW_LENGTH)
       .refine(
         (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
-        {
-          message: PW_PATTERN_ERROR
-        }
+        { message: PW_PATTERN }
       )
   })
 };
 
 const verifyEmail: APIRequestSchema = {
-  query: z.strictObject({
-    token: z.string()
+  query: z.object({
+    token: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 

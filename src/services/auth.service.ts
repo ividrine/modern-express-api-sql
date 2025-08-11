@@ -25,46 +25,61 @@ const logout = async (token: string) => {
 };
 
 const refreshAuth = async (refreshToken: string) => {
-  const token = await tokenService.verifyToken(refreshToken, TokenType.REFRESH);
+  try {
+    const token = await tokenService.verifyToken(
+      refreshToken,
+      TokenType.REFRESH
+    );
 
-  const user = await userService.getUserById(token.userId);
+    const user = await userService.getUserById(token.userId);
 
-  if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User does not exist.");
+    if (!user) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "User does not exist.");
+    }
+
+    await tokenService.removeToken(refreshToken);
+    return await tokenService.generateAuthTokens(user);
+  } catch {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");
   }
-
-  await tokenService.removeToken(refreshToken);
-  return await tokenService.generateAuthTokens(user);
 };
 
 const resetPassword = async (
   resetPasswordToken: string,
   newPassword: string
 ) => {
-  const resetPasswordTokenRow = await tokenService.verifyToken(
-    resetPasswordToken,
-    TokenType.RESET_PASSWORD
-  );
+  try {
+    const resetPasswordTokenRow = await tokenService.verifyToken(
+      resetPasswordToken,
+      TokenType.RESET_PASSWORD
+    );
 
-  const user = resetPasswordTokenRow.user;
+    const user = resetPasswordTokenRow.user;
 
-  await userService.updateUserById(user.id, {
-    password: newPassword
-  });
+    await userService.updateUserById(user.id, {
+      password: newPassword
+    });
 
-  await tokenService.removeManyTokens(user.id, TokenType.RESET_PASSWORD);
+    await tokenService.removeManyTokens(user.id, TokenType.RESET_PASSWORD);
+  } catch {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Password reset failed");
+  }
 };
 
 const verifyEmail = async (verifyEmailToken: string) => {
-  const verifyEmailTokenRow = await tokenService.verifyToken(
-    verifyEmailToken,
-    TokenType.VERIFY_EMAIL
-  );
+  try {
+    const verifyEmailTokenRow = await tokenService.verifyToken(
+      verifyEmailToken,
+      TokenType.VERIFY_EMAIL
+    );
 
-  const user = verifyEmailTokenRow.user;
+    const user = verifyEmailTokenRow.user;
 
-  await tokenService.removeManyTokens(user.id, TokenType.VERIFY_EMAIL);
-  await userService.updateUserById(user.id, { is_email_verified: true });
+    await tokenService.removeManyTokens(user.id, TokenType.VERIFY_EMAIL);
+    await userService.updateUserById(user.id, { is_email_verified: true });
+  } catch {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Email verification failed");
+  }
 };
 
 export default {

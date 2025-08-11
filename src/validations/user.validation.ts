@@ -1,54 +1,58 @@
 import * as z from "zod";
+import { Role } from "@prisma/client";
 import {
-  PW_LENGTH_ERROR,
-  PW_PATTERN_ERROR
+  PW_LENGTH,
+  PW_PATTERN,
+  EMAIL_REQUIRED,
+  INVALID_EMAIL,
+  PW_REQUIRED
 } from "../constants/validate.constants.js";
 
 const createUser = {
-  body: z.strictObject({
-    email: z.email(),
+  body: z.object({
+    email: z.email({
+      error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
+    }),
     password: z
-      .string()
-      .min(8, PW_LENGTH_ERROR)
+      .string(PW_REQUIRED)
+      .min(8, PW_LENGTH)
       .refine(
         (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
         {
-          message: PW_PATTERN_ERROR
+          message: PW_PATTERN
         }
       ),
-    username: z.string(),
-    role: z.enum(["user", "admin"])
+    role: z.enum(Role)
   })
 };
 
 const getUsers = {
-  query: z.strictObject({
-    username: z.string(),
-    role: z.string(),
-    sortBy: z.string(),
-    limit: z.number().int(),
-    page: z.number().int()
+  query: z.object({
+    email: z.string().optional(),
+    role: z.string().optional(),
+    sortBy: z.string().optional(),
+    limit: z.number().int().optional(),
+    page: z.number().int().optional()
   })
 };
 
 const getUser = {
-  params: z.strictObject({
+  params: z.object({
     userId: z.string()
   })
 };
 
 const updateUser = {
-  params: z.strictObject({ userId: z.string() }),
+  params: z.object({ userId: z.string() }),
   body: z.object({
     email: z.email().optional(),
-    username: z.string().optional(),
     password: z
       .string()
-      .min(8, PW_LENGTH_ERROR)
+      .min(8, PW_LENGTH)
       .refine(
         (password) => password.match(/\d/) && password.match(/[a-zA-Z]/),
         {
-          message: PW_PATTERN_ERROR
+          message: PW_PATTERN
         }
       )
       .optional()
@@ -56,7 +60,7 @@ const updateUser = {
 };
 
 const deleteUser = {
-  params: z.strictObject({ userId: z.string() })
+  params: z.object({ userId: z.string() })
 };
 
 export default {
