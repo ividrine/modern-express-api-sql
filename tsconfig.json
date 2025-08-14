@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "target": "ES2024",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "noEmitOnError": true,
     "rootDir": "./src",
-    "outDir": "./dist",
+    "outDir": "dist",
     "strict": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules"]
 }

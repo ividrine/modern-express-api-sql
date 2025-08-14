@@ -1,6 +1,5 @@
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import jest from "eslint-plugin-jest";
 import security from "eslint-plugin-security";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
@@ -20,17 +19,6 @@ export default tseslint.config(
     plugins: { security },
     rules: { "security/detect-object-injection": "off" },
     ...security.configs.recommended
-  },
-
-  // Jest
-  {
-    files: ["**/*.{spec,test}.ts"],
-    plugins: { jest },
-    rules: { "jest/expect-expect": "off" },
-    languageOptions: {
-      globals: { ...globals.jest }
-    },
-    ...jest.configs["flat/recommended"]
   },
 
   // Prettier
@@ -55,6 +43,7 @@ export default tseslint.config(
     rules: {
       "no-console": "error",
       "func-names": "off",
+      "no-trailing-spaces": "off",
       "no-underscore-dangle": "off",
       "consistent-return": "off"
     }
