@@ -4,7 +4,7 @@ import userService from "./user.service.js";
 import ApiError from "../utils/ApiError.js";
 import { TokenType } from "@prisma/client";
 import bcrypt from "bcrypt";
-import prisma from "../database/prisma/index.js";
+import prisma from "../database/prisma/prisma.js";
 
 const loginWithPassword = async (email: string, password: string) => {
   const user = await userService.getUserByEmail(email, true);
@@ -76,7 +76,7 @@ const verifyEmail = async (verifyEmailToken: string) => {
     const user = verifyEmailTokenRow.user;
 
     await tokenService.removeManyTokens(user.id, TokenType.VERIFY_EMAIL);
-    await userService.updateUserById(user.id, { is_email_verified: true });
+    await userService.updateUserById(user.id, { isEmailVerified: true });
   } catch {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Email verification failed");
   }

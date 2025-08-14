@@ -2,21 +2,22 @@ import httpStatus from "http-status";
 import ApiError from "../utils/ApiError.js";
 import bcrypt from "bcrypt";
 import { User } from "@prisma/client";
-import prisma from "../database/prisma/index.js";
+import prisma from "../database/prisma/prisma.js";
 import type { PaginationArgs } from "../database/prisma/extensions/paginate.js";
+import { InsertableUser, SelectableUser } from "../types/user.js";
 
 const salt = 10;
 
-const createUser = async (userBody: User) => {
+const createUser = async (userBody: InsertableUser) => {
   if (await prisma.user.findUnique({ where: { email: userBody.email } }))
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
 
-  userBody.password = await bcrypt.hash(userBody.password, salt);
+  const password = await bcrypt.hash(userBody.password, salt);
 
-  return await prisma.user.create({ data: userBody });
+  return await prisma.user.create({ data: { ...userBody, password } });
 };
 
-const queryUsers = async (args: PaginationArgs<User>) =>
+const queryUsers = async (args: PaginationArgs<SelectableUser>) =>
   await prisma.user.paginate(args);
 
 const getUserById = async (id: string, withPassword: boolean = false) =>
