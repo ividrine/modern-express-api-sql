@@ -2,20 +2,21 @@
 
 import { Prisma } from "@prisma/client";
 
-export type PrismaQuery<T> = Omit<Prisma.Args<T, "findMany">, "skip" | "take">;
+export type PaginationQuery<T> = Prisma.Args<T, "findMany">["where"];
 
 export type PaginationArgs<T> = {
   page?: number;
-  pageSize?: number;
-  query?: PrismaQuery<T>;
+  limit?: number;
+  order?: string;
+  where?: PaginationQuery<T>;
 };
 
 export type PaginationResult<T> = {
-  data: T[];
+  results: T[];
   meta: {
-    total: number;
     page: number;
-    pageSize: number;
+    limit: number;
+    totalResults: number;
     totalPages: number;
   };
 };
@@ -30,39 +31,38 @@ export const paginateExtension = Prisma.defineExtension({
       ) {
         const context = Prisma.getExtensionContext(this);
 
-        const { page = 1, pageSize = 10, query = {} as PrismaQuery<T> } = args;
-
         const {
-          orderBy = { id: "asc" },
-          where,
-          include,
-          select,
-          ...other
-        } = query;
+          page = 1,
+          limit = 10,
+          order = "id:asc",
+          where = {} as PaginationQuery<T>
+        } = args;
 
-        const take = Math.max(1, pageSize);
-        const skip = Math.max(0, (page - 1) * pageSize);
+        const take = Math.max(1, limit);
+        const skip = Math.max(0, (page - 1) * limit);
 
-        const [data, total] = await Promise.all([
+        const orderBy = order?.split(",").map((sortOption) => {
+          const [key, value] = sortOption.split(":");
+          return { [key]: value == "desc" ? "desc" : "asc" };
+        });
+
+        const [results, totalResults] = await Promise.all([
           (context as any).findMany({
             skip,
             take,
             orderBy,
-            where,
-            include,
-            select,
-            ...other
+            where
           }),
           (context as any).count({ where })
         ]);
 
         return {
-          data,
+          results,
           meta: {
-            total,
             page,
-            pageSize,
-            totalPages: Math.ceil(total / pageSize)
+            limit,
+            totalResults,
+            totalPages: Math.ceil(totalResults / limit)
           }
         };
       }
