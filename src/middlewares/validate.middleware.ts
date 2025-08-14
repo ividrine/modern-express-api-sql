@@ -1,33 +1,29 @@
 import httpStatus from "http-status";
 import ApiError from "../utils/ApiError.js";
 import { Request, Response, NextFunction } from "express";
-import { ZodType, ZodError } from "zod";
-
-export type APIRequestSchema = {
-  params?: ZodType;
-  query?: ZodType;
-  body?: ZodType;
-};
+import { ZodError } from "zod";
+import { RequestSchema } from "../types/request.js";
 
 const validate =
-  (schema: APIRequestSchema) =>
+  (schema: RequestSchema) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      if (schema.params)
-        Object.assign(req.params, schema.params.parse(req.params));
-      if (schema.query) Object.assign(req.query, schema.query.parse(req.query));
-      if (schema.body) Object.assign(schema.body, schema.body.parse(req.body));
-      return next();
+      res.locals.input = {
+        params: schema.params ? schema.params?.parse(req.params) : undefined,
+        query: schema.query ? schema.query.parse(req.query) : undefined,
+        body: schema.body ? schema.body.parse(req.body) : undefined
+      };
+      next();
     } catch (err) {
       if (err instanceof ZodError) {
-        return next(
+        next(
           new ApiError(
             httpStatus.BAD_REQUEST,
             err.issues.length > 0 ? err.issues[0].message : "Invalid request"
           )
         );
       } else {
-        return next(err);
+        next(err);
       }
     }
   };

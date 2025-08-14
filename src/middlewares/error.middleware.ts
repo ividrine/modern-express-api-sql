@@ -4,22 +4,22 @@ import config from "../config/config.js";
 import logger from "../config/logger.js";
 import ApiError from "../utils/ApiError.js";
 
+import type { BaseError } from "../types/error.js";
+
 export const errorConverter = (
-  err: Error,
+  err: BaseError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   let error = err;
   if (!(error instanceof ApiError)) {
-    const message =
-      error.message || httpStatus[httpStatus.INTERNAL_SERVER_ERROR];
-    error = new ApiError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      message,
-      false,
-      err.stack
-    );
+    const statusCode = err.statusCode
+      ? httpStatus.BAD_REQUEST
+      : httpStatus.INTERNAL_SERVER_ERROR;
+    // eslint-disable-next-line security/detect-object-injection
+    const message = error.message || httpStatus[statusCode];
+    error = new ApiError(statusCode, message, false, err.stack);
   }
   next(error);
 };

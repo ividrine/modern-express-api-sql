@@ -6,56 +6,64 @@ import {
   tokenService,
   emailService
 } from "../services/index.js";
+import { Role } from "@prisma/client";
+import { JWTPayload } from "express-oauth2-jwt-bearer";
 
 const register = catchAsync(async (req, res) => {
-  const user = await userService.createUser(req.body);
+  const { body } = res.locals.input;
+  const user = await userService.createUser(body);
   const tokens = await tokenService.generateAuthTokens(user);
   res.status(httpStatus.CREATED).send({ user, tokens });
 });
 
 const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = res.locals.input.body;
   const user = await authService.loginWithPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
   res.send({ tokens });
 });
 
 const logout = catchAsync(async (req, res) => {
-  await authService.logout(req.body.refreshToken);
+  const { refreshToken } = res.locals.input.body;
+  await authService.logout(refreshToken);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  const tokens = await authService.refreshAuth(req.body.refreshToken);
+  const { refreshToken } = res.locals.input.body;
+  const tokens = await authService.refreshAuth(refreshToken);
   res.send({ ...tokens });
 });
 
 const forgotPassword = catchAsync(async (req, res) => {
-  const resetPasswordToken = await tokenService.generateResetPasswordToken(
-    req.body.email
-  );
-  await emailService.sendResetPasswordEmail(req.body.email, resetPasswordToken);
+  const { email } = res.locals.input.body;
+  const resetPasswordToken =
+    await tokenService.generateResetPasswordToken(email);
+  await emailService.sendResetPasswordEmail(email, resetPasswordToken);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const resetPassword = catchAsync(async (req, res) => {
-  await authService.resetPassword(req.query.token as string, req.body.password);
+  const { token } = res.locals.input.query;
+  const { password } = res.locals.input.body;
+  await authService.resetPassword(token, password);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
+  // TODO either load user here or in middleware - no longer adding email to jwt
+  const { sub, role, email } = req.auth?.payload as JWTPayload;
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(
-    req.auth?.payload.sub as string
+    sub as string,
+    role as Role
   );
-  await emailService.sendVerificationEmail(
-    req.auth?.payload.email as string,
-    verifyEmailToken
-  );
+  await emailService.sendVerificationEmail(email as string, verifyEmailToken);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
 const verifyEmail = catchAsync(async (req, res) => {
-  await authService.verifyEmail(req.query.token as string);
+  const { token } = res.locals.input.query;
+  await authService.verifyEmail(token);
   res.status(httpStatus.NO_CONTENT).send();
 });
 

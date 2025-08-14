@@ -1,58 +1,60 @@
 import dayjs from "dayjs";
 import httpStatus from "http-status";
-import { v4 as uuid } from "uuid";
 import config from "../config/config.js";
 import ApiError from "../utils/ApiError.js";
-import { TokenType } from "@prisma/client";
 import userService from "./user.service.js";
-import { SignJWT, jwtVerify, JWTPayload } from "jose";
-import { User } from "@prisma/client";
-import prisma from "../database/prisma/index.js";
+import jwt from "jsonwebtoken";
+import prisma from "../database/prisma/prisma.js";
+import { Role, TokenType } from "@prisma/client";
 
-const generateToken = async (payload: JWTPayload): Promise<string> => {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-    .setIssuer(config.jwt.iss)
-    .setAudience(config.jwt.aud)
-    .setIssuedAt()
-    .sign(new TextEncoder().encode(config.jwt.secret));
+import type { AuthUser } from "../types/user.js";
+
+const {
+  issuer,
+  audience,
+  accessExpirationMinutes,
+  refreshExpirationDays,
+  resetPasswordExpirationMinutes,
+  verifyEmailExpirationMinutes
+} = config.jwt;
+
+const generateToken = (
+  sub: string,
+  role: Role,
+  type: TokenType,
+  exp: number,
+  secret: string = config.jwt.secret
+): string => {
+  const payload: object = { sub, role, type, exp, iat: dayjs().unix() };
+  const options: jwt.SignOptions = { issuer, audience, algorithm: "HS256" };
+  return jwt.sign(payload, secret, options);
 };
 
 const saveToken = async (
   token: string,
   userId: string,
-  expires: string,
   type: string,
+  expires: Date,
   revoked: boolean = false
 ) => {
   const tokenRow = await prisma.token.create({
     data: {
       token,
       userId,
-      expires,
       type,
+      expires,
       revoked
     }
   });
   return tokenRow;
 };
 
-const removeToken = async (token: string) =>
-  await prisma.token.delete({ where: { token } });
-
-const removeManyTokens = async (userId: string, type: string) =>
-  await prisma.token.deleteMany({ where: { userId, type } });
-
 const verifyToken = async (token: string, type: string) => {
-  const verifyResult = await jwtVerify(
-    token,
-    new TextEncoder().encode(config.jwt.secret)
-  );
-
-  const { payload } = verifyResult;
+  const payload = jwt.verify(token, config.jwt.secret);
+  const userId = payload.sub as string;
 
   const tokenRow = await prisma.token.findUnique({
-    where: { token, type, userId: payload.sub, revoked: false },
+    where: { token, type, userId, revoked: false },
     include: { user: true }
   });
 
@@ -63,44 +65,30 @@ const verifyToken = async (token: string, type: string) => {
   return tokenRow;
 };
 
-const generateAuthTokens = async (
-  user: Pick<User, "id" | "role" | "email">
-) => {
-  const accessTokenExpires = dayjs().add(
-    config.jwt.accessExpirationMinutes,
-    "minutes"
+const generateAuthTokens = async (user: AuthUser) => {
+  const accessTokenExpires = dayjs().add(accessExpirationMinutes, "minutes");
+  const refreshTokenExpires = dayjs().add(refreshExpirationDays, "days");
+
+  const accessToken = generateToken(
+    user.id,
+    user.role,
+    TokenType.ACCESS,
+    accessTokenExpires.unix()
   );
 
-  const accessToken = await generateToken({
-    sub: user.id,
-    exp: accessTokenExpires.unix(),
-    jti: uuid(),
-    type: TokenType.ACCESS,
-    role: user.role,
-    email: user.email
-  });
-
-  const refreshTokenExpires = dayjs().add(
-    config.jwt.refreshExpirationDays,
-    "days"
+  const refreshToken = generateToken(
+    user.id,
+    user.role,
+    TokenType.REFRESH,
+    refreshTokenExpires.unix()
   );
 
-  const refreshToken = await generateToken({
-    sub: user.id,
-    jti: uuid(),
-    exp: accessTokenExpires.unix(),
-    type: TokenType.REFRESH
-  });
-
-  await prisma.token.create({
-    data: {
-      userId: user.id,
-      token: refreshToken,
-      expires: refreshTokenExpires.toISOString(),
-      revoked: false,
-      type: TokenType.REFRESH
-    }
-  });
+  await saveToken(
+    refreshToken,
+    user.id,
+    TokenType.REFRESH,
+    refreshTokenExpires.toDate()
+  );
 
   return {
     access: {
@@ -116,57 +104,55 @@ const generateAuthTokens = async (
 
 const generateResetPasswordToken = async (email: string) => {
   const user = await userService.getUserByEmail(email);
+
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
   }
-  const expires = dayjs().add(
-    config.jwt.resetPasswordExpirationMinutes,
-    "minutes"
+
+  const expires = dayjs().add(resetPasswordExpirationMinutes, "minutes");
+
+  const resetPasswordToken = generateToken(
+    user.id,
+    user.role,
+    TokenType.RESET_PASSWORD,
+    expires.unix()
   );
 
-  const resetPasswordToken = await generateToken({
-    sub: user.id,
-    exp: expires.unix(),
-    type: TokenType.RESET_PASSWORD
-  });
-
-  await prisma.token.create({
-    data: {
-      userId: user.id,
-      token: resetPasswordToken,
-      expires: expires.toISOString(),
-      revoked: false,
-      type: TokenType.RESET_PASSWORD
-    }
-  });
+  await saveToken(
+    resetPasswordToken,
+    user.id,
+    TokenType.RESET_PASSWORD,
+    expires.toDate()
+  );
 
   return resetPasswordToken;
 };
 
-const generateVerifyEmailToken = async (userId: string) => {
-  const expires = dayjs().add(
-    config.jwt.verifyEmailExpirationMinutes,
-    "minutes"
+const generateVerifyEmailToken = async (userId: string, role: Role) => {
+  const expires = dayjs().add(verifyEmailExpirationMinutes, "minutes");
+
+  const verifyEmailToken = generateToken(
+    userId,
+    role,
+    TokenType.VERIFY_EMAIL,
+    expires.unix()
   );
 
-  const verifyEmailToken = await generateToken({
-    sub: userId,
-    exp: expires.unix(),
-    type: TokenType.VERIFY_EMAIL
-  });
-
-  await prisma.token.create({
-    data: {
-      userId: userId,
-      token: verifyEmailToken,
-      expires: expires.toISOString(),
-      revoked: false,
-      type: TokenType.VERIFY_EMAIL
-    }
-  });
+  await saveToken(
+    verifyEmailToken,
+    userId,
+    TokenType.VERIFY_EMAIL,
+    expires.toDate()
+  );
 
   return verifyEmailToken;
 };
+
+const removeToken = async (token: string) =>
+  await prisma.token.delete({ where: { token } });
+
+const removeManyTokens = async (userId: string, type: string) =>
+  await prisma.token.deleteMany({ where: { userId, type } });
 
 export default {
   generateToken,

@@ -8,9 +8,9 @@ import {
   INVALID_TOKEN
 } from "../constants/validate.constants.js";
 
-import { APIRequestSchema } from "../middlewares/validate.middleware.js";
+import type { RequestSchema } from "../types/request.js";
 
-const register: APIRequestSchema = {
+const register: RequestSchema = {
   body: z.object({
     email: z.email({
       error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
@@ -27,7 +27,7 @@ const register: APIRequestSchema = {
   })
 };
 
-const login: APIRequestSchema = {
+const login: RequestSchema = {
   body: z.object({
     email: z.email({
       error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
@@ -36,19 +36,19 @@ const login: APIRequestSchema = {
   })
 };
 
-const logout: APIRequestSchema = {
+const logout: RequestSchema = {
   body: z.object({
     refreshToken: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 
-const refreshTokens: APIRequestSchema = {
+const refreshTokens: RequestSchema = {
   body: z.object({
     refreshToken: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 
-const forgotPassword: APIRequestSchema = {
+const forgotPassword: RequestSchema = {
   body: z.object({
     email: z.email({
       error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
@@ -56,7 +56,7 @@ const forgotPassword: APIRequestSchema = {
   })
 };
 
-const resetPassword: APIRequestSchema = {
+const resetPassword: RequestSchema = {
   query: z.object({
     token: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   }),
@@ -71,7 +71,7 @@ const resetPassword: APIRequestSchema = {
   })
 };
 
-const verifyEmail: APIRequestSchema = {
+const verifyEmail: RequestSchema = {
   query: z.object({
     token: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })

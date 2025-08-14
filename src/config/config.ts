@@ -41,8 +41,8 @@ export default {
   db_url: data.DATABASE_URL,
   valkey_url: data.VALKEY_URL,
   jwt: {
-    iss: data.JWT_ISSUER,
-    aud: data.JWT_AUDIENCE,
+    issuer: data.JWT_ISSUER,
+    audience: data.JWT_AUDIENCE,
     secret: data.JWT_SECRET,
     accessExpirationMinutes: data.JWT_ACCESS_EXPIRATION_MINUTES,
     refreshExpirationDays: data.JWT_REFRESH_EXPIRATION_DAYS,

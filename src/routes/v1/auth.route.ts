@@ -1,31 +1,31 @@
 import express from "express";
 import validate from "../../middlewares/validate.middleware.js";
-import authValidator from "../../validations/auth.validation.js";
+import authValidation from "../../validations/auth.validation.js";
 import authController from "../../controllers/auth.controller.js";
-import { authorize } from "../../middlewares/auth.middleware.js";
+import authorize from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 router.post(
   "/register",
-  validate(authValidator.register),
+  validate(authValidation.register),
   authController.register
 );
-router.post("/login", validate(authValidator.login), authController.login);
-router.post("/logout", validate(authValidator.logout), authController.logout);
+router.post("/login", validate(authValidation.login), authController.login);
+router.post("/logout", validate(authValidation.logout), authController.logout);
 router.post(
   "/refresh-tokens",
-  validate(authValidator.refreshTokens),
+  validate(authValidation.refreshTokens),
   authController.refreshTokens
 );
 router.post(
   "/forgot-password",
-  validate(authValidator.forgotPassword),
+  validate(authValidation.forgotPassword),
   authController.forgotPassword
 );
 router.post(
   "/reset-password",
-  validate(authValidator.resetPassword),
+  validate(authValidation.resetPassword),
   authController.resetPassword
 );
 router.post(
@@ -35,7 +35,7 @@ router.post(
 );
 router.post(
   "/verify-email",
-  validate(authValidator.verifyEmail),
+  validate(authValidation.verifyEmail),
   authController.verifyEmail
 );
 
