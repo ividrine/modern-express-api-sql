@@ -1,7 +1,7 @@
 import app from "./app.js";
 import config from "./config/config.js";
 import logger from "./config/logger.js";
-import { initSql, closeSql } from "./database/prisma/index.js";
+import { initSql, closeSql } from "./database/prisma/prisma.js";
 import { initValkey, closeValkey } from "./database/valkey.js";
 
 (async () => {
