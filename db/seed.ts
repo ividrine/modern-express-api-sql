@@ -3,11 +3,6 @@ import { PrismaClient, Role } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcrypt";
 
-if (process.env.NODE_ENV !== "development") {
-  console.log("Seed only allowed in development environment");
-  process.exit(0);
-}
-
 const prisma = new PrismaClient();
 
 async function main() {

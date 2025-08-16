@@ -1,9 +1,7 @@
 services:
   valkey:
-    image: valkey/valkey:8-alpine
+    image: valkey/valkey
     container_name: valkey-server
-    env_file:
-      - ./.env
     ports:
       - "6379:6379"
     volumes:
@@ -12,8 +10,9 @@ services:
   pg:
     image: postgres:16-alpine
     container_name: pg-server
-    env_file:
-      - ./.env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     expose:
       - "5432"
     ports:
@@ -22,10 +21,12 @@ services:
       - pg_data:/data/db'
 
   pgadmin:
-    container_name: pgadmin
+    container_name: pg-admin
     image: dpage/pgadmin4
-    env_file:
-      - ./.env
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@app.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+      - PGADMIN_PORT=54321
     ports:
       - "4321:80"
     depends_on:

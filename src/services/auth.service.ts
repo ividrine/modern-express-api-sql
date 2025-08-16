@@ -4,7 +4,7 @@ import userService from "./user.service.js";
 import ApiError from "../utils/ApiError.js";
 import { TokenType } from "@prisma/client";
 import bcrypt from "bcrypt";
-import prisma from "../database/prisma/prisma.js";
+import prisma from "../lib/prisma/prisma.js";
 
 const loginWithPassword = async (email: string, password: string) => {
   const user = await userService.getUserByEmail(email, true);

@@ -2,9 +2,9 @@ import type { PrismaConfig } from "prisma";
 import path from "path";
 
 export default {
-  schema: path.join("prisma", "schema.prisma"),
+  schema: path.join("db", "schema.prisma"),
   migrations: {
-    path: path.join("prisma", "migrations"),
-    seed: "tsx prisma/seed.ts"
+    path: path.join("db", "migrations"),
+    seed: "tsx db/seed.ts"
   }
 } satisfies PrismaConfig;

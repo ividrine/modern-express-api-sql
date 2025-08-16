@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "public"."Role" AS ENUM ('USER', 'ADMIN');
+CREATE TYPE "public"."Role" AS ENUM ('ADMIN', 'USER');
 
 -- CreateEnum
 CREATE TYPE "public"."TokenType" AS ENUM ('ACCESS', 'REFRESH', 'RESET_PASSWORD', 'VERIFY_EMAIL');

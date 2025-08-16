@@ -1,8 +1,8 @@
 import app from "./app.js";
 import config from "./config/config.js";
 import logger from "./config/logger.js";
-import { initSql, closeSql } from "./database/prisma/prisma.js";
-import { initValkey, closeValkey } from "./database/valkey.js";
+import { initSql, closeSql } from "./lib/prisma/prisma.js";
+import { initValkey, closeValkey } from "./lib/valkey.js";
 
 (async () => {
   await Promise.all([initSql(), initValkey()]);

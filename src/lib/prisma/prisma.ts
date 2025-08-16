@@ -4,7 +4,13 @@ import paginateExtension from "./extensions/paginate.js";
 const _prisma = new PrismaClient({
   omit: {
     user: {
-      password: true
+      password: true,
+      createdAt: true,
+      updatedAt: true
+    },
+    token: {
+      createdAt: true,
+      updatedAt: true
     }
   }
 });

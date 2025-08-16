@@ -8,9 +8,7 @@ import {
   INVALID_TOKEN
 } from "../constants/validate.constants.js";
 
-import type { RequestSchema } from "../types/request.js";
-
-const register: RequestSchema = {
+const register = {
   body: z.object({
     email: z.email({
       error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
@@ -27,7 +25,7 @@ const register: RequestSchema = {
   })
 };
 
-const login: RequestSchema = {
+const login = {
   body: z.object({
     email: z.email({
       error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
@@ -36,19 +34,19 @@ const login: RequestSchema = {
   })
 };
 
-const logout: RequestSchema = {
+const logout = {
   body: z.object({
     refreshToken: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 
-const refreshTokens: RequestSchema = {
+const refreshTokens = {
   body: z.object({
     refreshToken: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })
 };
 
-const forgotPassword: RequestSchema = {
+const forgotPassword = {
   body: z.object({
     email: z.email({
       error: (iss) => (iss.input === undefined ? EMAIL_REQUIRED : INVALID_EMAIL)
@@ -56,7 +54,7 @@ const forgotPassword: RequestSchema = {
   })
 };
 
-const resetPassword: RequestSchema = {
+const resetPassword = {
   query: z.object({
     token: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   }),
@@ -71,7 +69,7 @@ const resetPassword: RequestSchema = {
   })
 };
 
-const verifyEmail: RequestSchema = {
+const verifyEmail = {
   query: z.object({
     token: z.string(INVALID_TOKEN).min(1, INVALID_TOKEN)
   })

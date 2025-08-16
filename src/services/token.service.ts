@@ -4,7 +4,7 @@ import config from "../config/config.js";
 import ApiError from "../utils/ApiError.js";
 import userService from "./user.service.js";
 import jwt from "jsonwebtoken";
-import prisma from "../database/prisma/prisma.js";
+import prisma from "../lib/prisma/prisma.js";
 import { Role, TokenType } from "@prisma/client";
 
 import type { AuthUser } from "../types/user.js";

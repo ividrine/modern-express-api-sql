@@ -43,7 +43,7 @@ export const paginateExtension = Prisma.defineExtension({
 
         const orderBy = order?.split(",").map((sortOption) => {
           const [key, value] = sortOption.split(":");
-          return { [key]: value == "desc" ? "desc" : "asc" };
+          return { [key]: value == "asc" ? "asc" : "desc" };
         });
 
         const [results, totalResults] = await Promise.all([
