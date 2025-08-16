@@ -9,7 +9,7 @@ import {
 } from "../fixtures/token.fixture";
 import { describe, test, expect, beforeEach } from "vitest";
 import { Role } from "@prisma/client";
-import prisma from "../../src/lib/prisma/prisma";
+import prisma from "../../src/lib/prisma";
 
 describe("User routes", async () => {
   describe("POST /v1/users", async () => {

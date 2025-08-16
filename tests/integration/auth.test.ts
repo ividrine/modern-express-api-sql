@@ -17,7 +17,7 @@ import {
 } from "../fixtures/token.fixture";
 import { SentMessageInfo } from "nodemailer";
 import ApiError from "../../src/utils/ApiError";
-import prisma from "../../src/lib/prisma/prisma";
+import prisma from "../../src/lib/prisma";
 import bcrypt from "bcrypt";
 
 describe("Auth routes", async () => {
