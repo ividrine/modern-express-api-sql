@@ -12,15 +12,17 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "docker-compose up --build --wait -d && dotenv prisma migrate dev && dotenv prisma db seed && dotenv tsx watch src/index.ts",
+    "dev": "docker-compose up --build --wait -d && dotenv prisma migrate dev && dotenv tsx watch src/index.ts",
     "debug": "dotenv tsx --inspect src/index.ts",
     "prod": "node dist/index.js",
-    "test": "dotenv -e .env vitest",
+    "test": "docker-compose up --build --wait -d && dotenv -e .env.test prisma migrate dev && dotenv -e .env.test vitest",
     "prepare": "husky",
     "envup": "docker-compose up --build -d",
     "envdown": "docker-compose down",
     "migrate-dev": "dotenv prisma migrate dev",
-    "migrate-deploy": "prisma migrate deploy"
+    "migrate-deploy": "prisma migrate deploy",
+    "test:unit": "vitest -c ./vitest.config.unit.ts",
+    "test:unit:ui": "vitest -c ./vitest.config.unit.ts --ui"
   },
   "keywords": [
     "node",
@@ -55,6 +57,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.15.4",
     "@types/supertest": "^6.0.3",
+    "@vitest/browser": "^3.2.4",
     "dotenv-cli": "^10.0.0",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
@@ -67,7 +70,7 @@
     "node-mocks-http": "^1.17.2",
     "prettier": "^3.6.2",
     "prettier-plugin-prisma": "^5.0.0",
-    "prisma": "^6.13.0",
+    "prisma": "^6.14.0",
     "supertest": "^7.1.4",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
@@ -76,7 +79,7 @@
     "vitest-mock-extended": "^3.1.0"
   },
   "dependencies": {
-    "@prisma/client": "6.13.0",
+    "@prisma/client": "6.14.0",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "dayjs": "^1.11.13",

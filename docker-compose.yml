@@ -21,12 +21,6 @@ services:
     volumes:
       - pg_data:/data/db'
 
-    # Allows app to wait for container boostrap https://docs.docker.com/reference/dockerfile/#healthcheck
-
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d appdb"]
-      start_period: 3s
-
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
