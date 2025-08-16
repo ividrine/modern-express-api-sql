@@ -11,32 +11,42 @@ const { secret, issuer, audience } = config.jwt;
 const authorize =
   (...permissions: string[]) =>
   (req: Request, res: Response, next: NextFunction) => {
-    auth({
-      secret,
-      issuer,
-      audience,
-      tokenSigningAlg: "HS256"
-    })(req, res, () => {
-      const payload = req.auth?.payload;
+    return new Promise<void>((resolve, reject) => {
+      auth({
+        secret,
+        issuer,
+        audience,
+        tokenSigningAlg: "HS256"
+      })(req, res, (err) => {
+        const payload = req.auth?.payload;
 
-      if (payload?.type != TokenType.ACCESS) {
-        next(new Error("Invalid token type"));
-      }
+        if (err) {
+          return reject(new ApiError(httpStatus.UNAUTHORIZED, "Invalid token"));
+        }
 
-      const privileges = ROLE_PRIVILEGES.get(payload?.role as Role) as string[];
+        if (payload?.type != TokenType.ACCESS) {
+          return reject(new ApiError(httpStatus.UNAUTHORIZED, "Invalid token"));
+        }
 
-      const hasPrivileges = permissions.every((permission) =>
-        privileges.includes(permission)
-      );
+        const privileges = ROLE_PRIVILEGES.get(
+          payload?.role as Role
+        ) as string[];
 
-      // This is an import condition.
-      // On /:userId routes a user doesn't need specific permissions to access / modify their own data.
-      if (!hasPrivileges && req.params?.userId !== payload?.sub) {
-        next(new ApiError(httpStatus.FORBIDDEN, "Forbidden"));
-      }
+        const hasPrivileges = permissions.every((permission) =>
+          privileges.includes(permission)
+        );
 
-      next();
-    });
+        // This is an import condition.
+        // On /:userId routes a user doesn't need specific permissions to access / modify their own data.
+        if (!hasPrivileges && req.params?.userId !== payload?.sub) {
+          return reject(new ApiError(httpStatus.FORBIDDEN, "Forbidden"));
+        }
+
+        resolve();
+      });
+    })
+      .then(() => next())
+      .catch((err) => next(err));
   };
 
 export default authorize;
