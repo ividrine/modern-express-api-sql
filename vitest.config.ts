@@ -7,6 +7,20 @@ export default defineConfig({
     globalSetup: "./tests/util/globalSetup.ts",
     pool: "forks",
     maxConcurrency: 1,
-    fileParallelism: false
+    fileParallelism: false,
+    coverage: {
+      provider: "istanbul",
+      exclude: [
+        "node_modules",
+        "src/config",
+        "src/app.ts",
+        "src/index.ts",
+        "src/lib",
+        "tests",
+        "bin",
+        "db",
+        "*.config.ts"
+      ]
+    }
   }
 });

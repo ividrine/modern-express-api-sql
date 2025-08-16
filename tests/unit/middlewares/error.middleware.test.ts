@@ -5,7 +5,7 @@ import {
   errorHandler
 } from "../../../src/middlewares/error.middleware.ts";
 import ApiError from "../../../src/utils/ApiError.ts";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeEach } from "vitest";
 import logger from "../../../src/config/logger.ts";
 import config from "../../../src/config/config.ts";
 import type { BaseError } from "../../../src/types/error.ts";
@@ -13,7 +13,7 @@ import type { NodeEnv } from "../../../src/types/env.ts";
 
 describe("Error middlewares", () => {
   describe("Error converter", () => {
-    it("should return the same ApiError object it was called with", () => {
+    test("should return the same ApiError object it was called with", () => {
       const error = new ApiError(httpStatus.BAD_REQUEST, "Any error");
       const next = vi.fn();
 
@@ -27,7 +27,7 @@ describe("Error middlewares", () => {
       expect(next).toHaveBeenCalledWith(error);
     });
 
-    it("should convert an Error to ApiError and preserve its status and message", () => {
+    test("should convert an Error to ApiError and preserve its status and message", () => {
       const error = new Error("Any error") as BaseError;
       error.statusCode = httpStatus.BAD_REQUEST;
       const next = vi.fn();
@@ -49,7 +49,7 @@ describe("Error middlewares", () => {
       );
     });
 
-    it("should convert an Error without status to ApiError with status 500", () => {
+    test("should convert an Error without status to ApiError with status 500", () => {
       const error = new Error("Any error");
       const next = vi.fn();
 
@@ -70,7 +70,7 @@ describe("Error middlewares", () => {
       );
     });
 
-    it("should convert an Error without message to ApiError with default message of that http status", () => {
+    test("should convert an Error without message to ApiError with default message of that http status", () => {
       const error = new Error() as BaseError;
       error.statusCode = httpStatus.BAD_REQUEST;
       const next = vi.fn();
@@ -92,7 +92,7 @@ describe("Error middlewares", () => {
       );
     });
 
-    it("should convert any other object to ApiError with status 500 and its message", () => {
+    test("should convert any other object to ApiError with status 500 and its message", () => {
       const error = new Error();
       const next = vi.fn();
 
@@ -119,7 +119,7 @@ describe("Error middlewares", () => {
       vi.spyOn(logger, "error").mockImplementation(vi.fn());
     });
 
-    it("should send proper error response and put the error message in res.locals", () => {
+    test("should send proper error response and put the error message in res.locals", () => {
       const error = new ApiError(httpStatus.BAD_REQUEST, "Any error");
       const res = httpMocks.createResponse();
       const sendSpy = vi.spyOn(res, "send");
@@ -135,7 +135,7 @@ describe("Error middlewares", () => {
       expect(res.locals.errorMessage).toBe(error.message);
     });
 
-    it("should put the error stack in the response if in development mode", () => {
+    test("should put the error stack in the response if in development mode", () => {
       config.env = "development";
       const error = new ApiError(httpStatus.BAD_REQUEST, "Any error");
       const res = httpMocks.createResponse();
@@ -150,13 +150,10 @@ describe("Error middlewares", () => {
           stack: error.stack
         })
       );
-      config.env = process.env.NODE_ENV as
-        | "production"
-        | "development"
-        | "test";
+      config.env = process.env.NODE_ENV as NodeEnv;
     });
 
-    it("should send internal server error status and message if in production mode and error is not operational", () => {
+    test("should send internal server error status and message if in production mode and error is not operational", () => {
       config.env = "production";
       const error = new ApiError(httpStatus.BAD_REQUEST, "Any error", false);
       const res = httpMocks.createResponse();
@@ -174,7 +171,7 @@ describe("Error middlewares", () => {
       config.env = process.env.NODE_ENV as NodeEnv;
     });
 
-    it("should preserve original error status and message if in production mode and error is operational", () => {
+    test("should preserve original error status and message if in production mode and error is operational", () => {
       config.env = "production";
       const error = new ApiError(httpStatus.BAD_REQUEST, "Any error");
       const res = httpMocks.createResponse();

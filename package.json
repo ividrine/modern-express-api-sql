@@ -13,16 +13,13 @@
   "scripts": {
     "build": "tsc",
     "dev": "docker-compose up --build --wait -d && dotenv prisma migrate dev && dotenv tsx watch src/index.ts",
-    "debug": "dotenv tsx --inspect src/index.ts",
     "prod": "node dist/index.js",
-    "test": "docker-compose up --build --wait -d && dotenv -e .env.test prisma migrate dev && dotenv -e .env.test vitest",
+    "test:ui": "docker-compose up --build --wait -d && dotenv -e .env.test prisma migrate dev -- --skip-seed && dotenv -e .env.test vitest -- --ui --coverage",
     "prepare": "husky",
     "envup": "docker-compose up --build -d",
     "envdown": "docker-compose down",
     "migrate-dev": "dotenv prisma migrate dev",
-    "migrate-deploy": "prisma migrate deploy",
-    "test:unit": "vitest -c ./vitest.config.unit.ts",
-    "test:unit:ui": "vitest -c ./vitest.config.unit.ts --ui"
+    "migrate-deploy": "prisma migrate deploy"
   },
   "keywords": [
     "node",
@@ -58,6 +55,8 @@
     "@types/pg": "^8.15.4",
     "@types/supertest": "^6.0.3",
     "@vitest/browser": "^3.2.4",
+    "@vitest/coverage-istanbul": "3.2.4",
+    "@vitest/ui": "3.2.4",
     "dotenv-cli": "^10.0.0",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
