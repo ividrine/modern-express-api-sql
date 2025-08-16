@@ -8,6 +8,7 @@ import {
 } from "../services/index.js";
 import { Role } from "@prisma/client";
 import { JWTPayload } from "express-oauth2-jwt-bearer";
+import ApiError from "../utils/ApiError.js";
 
 const register = catchAsync(async (req, res) => {
   const { body } = res.locals.input;
@@ -20,7 +21,7 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = res.locals.input.body;
   const user = await authService.loginWithPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
-  res.send({ tokens });
+  res.send({ tokens, user });
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -51,13 +52,22 @@ const resetPassword = catchAsync(async (req, res) => {
 });
 
 const sendVerificationEmail = catchAsync(async (req, res) => {
-  // TODO either load user here or in middleware - no longer adding email to jwt
-  const { sub, role, email } = req.auth?.payload as JWTPayload;
+  const { sub, role } = req.auth?.payload as JWTPayload;
+  const user = await userService.getUserById(sub as string);
+
+  if (!user) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Email verification failed");
+  }
+
   const verifyEmailToken = await tokenService.generateVerifyEmailToken(
     sub as string,
     role as Role
   );
-  await emailService.sendVerificationEmail(email as string, verifyEmailToken);
+
+  await emailService.sendVerificationEmail(
+    user.email as string,
+    verifyEmailToken
+  );
   res.status(httpStatus.NO_CONTENT).send();
 });
 
