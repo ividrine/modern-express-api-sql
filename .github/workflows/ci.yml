@@ -16,9 +16,9 @@ jobs:
       database:
         image: postgres:latest
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
         ports:
           - 5432:5432
         options: >-
@@ -54,6 +54,11 @@ jobs:
           JWT_REFRESH_EXPIRATION_DAYS: ${{ env.JWT_REFRESH_EXPIRATION_DAYS }}
           JWT_RESET_PASSWORD_EXPIRATION_MINUTES: ${{ env.JWT_RESET_PASSWORD_EXPIRATION_MINUTES }}
           JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: ${{ env.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_FROM: ${{ env.EMAIL_FROM }}
         run: pnpm test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
