@@ -16,7 +16,7 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "test:ui": "docker-compose up --build --wait -d && dotenv -e .env.test prisma migrate dev -- --skip-seed && dotenv -e .env.test vitest -- --ui --coverage",
-    "test": "vitest --coverage -c vitest.config.ts",
+    "test": "vitest --coverage",
     "envup": "docker-compose up --build -d",
     "envdown": "docker-compose down",
     "prepare": "husky"
