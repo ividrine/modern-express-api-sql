@@ -5,9 +5,8 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  JOB-ID:
-    environment: test
   test:
+    environment: test
     runs-on: ubuntu-latest
     services:
       valkey:
@@ -16,6 +15,10 @@ jobs:
           - 6379:6379
       database:
         image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
         ports:
           - 5432:5432
         options: >-
@@ -40,6 +43,17 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm migrate:dev -- --skip-seed
       - name: Run Vitest with coverage
+        env:
+          NODE_ENV: ${{ env.NODE_ENV }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          VALKEY_URL: ${{ secrets.VALKEY_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_ISSUER: ${{ env.JWT_ISSUER }}
+          JWT_AUDIENCE: ${{ env.JWT_AUDIENCE }}
+          JWT_ACCESS_EXPIRATION_MINUTES: ${{ env.JWT_ACCESS_EXPIRATION_MINUTES }}
+          JWT_REFRESH_EXPIRATION_DAYS: ${{ env.JWT_REFRESH_EXPIRATION_DAYS }}
+          JWT_RESET_PASSWORD_EXPIRATION_MINUTES: ${{ env.JWT_RESET_PASSWORD_EXPIRATION_MINUTES }}
+          JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: ${{ env.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES }}
         run: pnpm test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
