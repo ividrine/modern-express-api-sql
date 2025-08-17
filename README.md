@@ -5,7 +5,7 @@
    <h3 align="center">Express API SQL</h3>
 
   <p align="center">
-   A modern express API boilerplate for relational databases.
+   A modern node/express API boilerplate for relational databases.
   </p>
 </div>
 
@@ -17,10 +17,6 @@
       <li><a href="#prerequisites">Prerequisites</a></li>
       <li>
          <a href="#quick-start">Quick Start</a>
-         <ul>
-            <li><a href="#pnpm">PNPM</a></li>
-            <li><a href="#npm">NPM</a></li>
-         </ul>
       </li>
       <li><a href="#features">Features</a></li>
       <li><a href="#commands">Commands</a></li>
@@ -33,7 +29,6 @@
       <li><a href="#authorization">Authorization</a></li>
       <li><a href="#logging">Logging</a></li>
       <li><a href="#linting">Linting</a></li>
-      <li><a href="#acknowledgments">Acknowledgments</a></li>
    </ol>
 </details>
 
@@ -41,7 +36,7 @@
 
 ## About The Project
 
-A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, and Prisma. It is a flavor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) that provides type safety and works for relational databases among other things. It doesn't assume anything about how you will deploy to prod, but instead provides the tools to integrate your own CI/CD pipeline and deployments.
+Fork of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) that adds type safety and works for relational databases.
 
 ## Prerequisites
 
@@ -56,30 +51,34 @@ A boilerplate/starter project for quickly building RESTful APIs using Node.js, E
 ## Features
 
 - Type Safety - [Typescript](https://www.typescriptlang.org/)
-- Relational Database - [PostgreSql](https://www.postgresql.org/)
-- ORM - [Prisma](https://www.prisma.io/)
-- Cache Server - [Valkey](https://valkey.io/)
+- Relational Database / ORM - [PostgreSql](https://www.postgresql.org/) and [Prisma](https://www.prisma.io/)
+- Authentication / Authorization - [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) and [node-oauth2-jwt-bearer](https://github.com/auth0/node-oauth2-jwt-bearer)
 - Request Data Validation - [Zod](https://zod.dev/)
-- Git Hooks - [Husky](https://typicode.github.io/husky/) and [Lint-staged](https://github.com/lint-staged/lint-staged)
-- Linting - [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/)
 - Logging - [Winston](https://github.com/winstonjs/winston) and [Morgan](https://github.com/expressjs/morgan)
 - Unit and Integration Tests - [Vitest](https://vitest.dev/)
-- Local External Dependencies - [Docker](https://www.docker.com/)
+- Error handling: centralized error handling mechanism
 - Dependency Management - [PNPM](https://pnpm.io/)
+- Git Hooks - [Husky](https://typicode.github.io/husky/) and [Lint-staged](https://github.com/lint-staged/lint-staged)
+- Linting - [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/)
+- Local Infrastructure - [Docker](https://www.docker.com/)
 
 ## Commands
 
-### `pnpm dev`
+### `dev`
 
-Runs infrastructure in local containers if not already running, runs db migration if needed and then starts the app in watch mode.
+Starts external app dependencies with docker-compose, runs prisma migration and seeds database if needed, and starts app in watch mode.
 
-### `pnpm envup`
+### `envup`
 
-Runs infrastructure in local containers
+Starts external app dependencies with docker-compose.
 
-### `pnpm envdown`
+### `envdown`
 
-Tear down local infrastructure
+Tears down external app dependencies. You can pass arguments to underlying docker-compose command like this `pnpm envup -- -v` to also remove volumes.
+
+### `test`
+
+Starts external app dependencies with docker-compose, runs prisma migration and runs vitest with ui and coverage options.
 
 ## Environment Variables
 
@@ -117,6 +116,23 @@ EMAIL_FROM=support@yourapp.com
 
 ## Project Structure
 
+```
+src\
+ |--config\         # Environment variables and configuration related things
+ |--constants\      # App constants
+ |--controllers\    # Route controllers (controller layer)
+ |--docs\           # Swagger files
+ |--lib\            # Db clients / connections / integrations
+ |--middlewares\    # Custom express middlewares
+ |--routes\         # Routes
+ |--services\       # Business logic (service layer)
+ |--types\          # Typescript types/interfaces
+ |--utils\          # Utility classes and functions
+ |--validations\    # Request data validation schemas
+ |--app.js          # Express app
+ |--index.js        # App entry point
+```
+
 ## API Documentation
 
 ## Error Handling
@@ -130,3 +146,5 @@ EMAIL_FROM=support@yourapp.com
 ## Logging
 
 ## Linting
+
+## Tests
