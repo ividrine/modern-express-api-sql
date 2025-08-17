@@ -10,6 +10,7 @@ export default defineConfig({
     fileParallelism: false,
     coverage: {
       provider: "istanbul",
+      reporter: ["text", "lcov", "cobertura", "html"],
       exclude: [
         "node_modules",
         "src/config",
