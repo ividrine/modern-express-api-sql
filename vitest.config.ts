@@ -8,6 +8,9 @@ export default defineConfig({
     pool: "forks",
     maxConcurrency: 1,
     fileParallelism: false,
+    sequence: {
+      concurrent: false
+    },
     coverage: {
       provider: "istanbul",
       reporter: ["text", "lcov", "cobertura", "html"],
