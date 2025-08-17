@@ -41,27 +41,17 @@
 
 ## About The Project
 
-This project is a flavor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) that provides type safety and works for relational databases.
+A boilerplate/starter project for quickly building RESTful APIs using Node.js, Express, and Prisma. It is a flavor of [RESTful API Node Server Boilerplate](https://github.com/hagopj13/node-express-boilerplate) that provides type safety and works for relational databases among other things. It doesn't assume anything about how you will deploy to prod, but instead provides the tools to integrate your own CI/CD pipeline and deployments.
 
 ## Prerequisites
 
-- [Node v22 or later](https://nodejs.org/en/download) - for `--env-file` flag
-- [Docker](https://www.docker.com/) - for local infrastructure and tools (Postgres, PGAdmin, Valkey)
-- [PNPM](https://pnpm.io/) - for better dependency management (recommended)
+- [Node](https://nodejs.org/en/download)
+- [Docker](https://www.docker.com/) - for local external app dependencies (Postgres, PGAdmin, Valkey)
 
 ## Quick Start
 
-Follow the instructions for the package manager you are using. NPM is the default package manager for Node.
-
-### PNPM
-
-1. Run `pnpm dlx create-express-sql-app yourAppName` or `pnpm create express-sql-app yourAppName` to initialize a new project.
-2. Run `pnpm dev` in your new project's root directory to start the app.
-
-### NPM
-
 1. Run `npx create-express-sql-app yourAppName` or `npm init express-sql-app yourAppName` to initialize a new project.
-2. Run `npm run dev` in your new project's root directory to start the app.
+2. `cd yourAppName` and `npm run dev` to start the app
 
 ## Features
 
@@ -70,14 +60,12 @@ Follow the instructions for the package manager you are using. NPM is the defaul
 - ORM - [Prisma](https://www.prisma.io/)
 - Cache Server - [Valkey](https://valkey.io/)
 - Request Data Validation - [Zod](https://zod.dev/)
-- Authorization - [node-oauth2-jwt-bearer](https://github.com/auth0/node-oauth2-jwt-bearer)
-- JWT/JWK Manager - [Jose](https://github.com/panva/jose)
 - Git Hooks - [Husky](https://typicode.github.io/husky/) and [Lint-staged](https://github.com/lint-staged/lint-staged)
 - Linting - [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/)
 - Logging - [Winston](https://github.com/winstonjs/winston) and [Morgan](https://github.com/expressjs/morgan)
-- Testing - [Jest](https://jestjs.io/)
-- Local Infrastructure - [Docker](https://www.docker.com/)
-- Package Manager - [PNPM](https://pnpm.io/)
+- Unit and Integration Tests - [Vitest](https://vitest.dev/)
+- Local External Dependencies - [Docker](https://www.docker.com/)
+- Dependency Management - [PNPM](https://pnpm.io/)
 
 ## Commands
 
@@ -95,11 +83,9 @@ Tear down local infrastructure
 
 ## Environment Variables
 
-This project uses `.env` files to load environment variables into node's `process.env` object. It is git ignored to avoid checking secrets and other sensitive data into source control.
+This project uses `.env` files to load environment variables into node's `process.env` object for local development. They are git ignored to avoid checking secrets and other sensitive data into source control. See [here](https://nodejs.org/en/learn/command-line/how-to-read-environment-variables-from-nodejs) for more information about environment variables in node.
 
-You can create multiple `.env` files, for example `.env.stage` or `.env.test` if you have different external infrastructure you want to connect to and test from your local machine. This project provides a `.env` file with credentials for connecting to your local infrastructure.
-
-See [here](https://nodejs.org/en/learn/command-line/how-to-read-environment-variables-from-nodejs) for more information about environment variables in node.
+The environment variables can be found and modified in the `.env` file. They come with these default values
 
 ```
 # App
@@ -108,18 +94,9 @@ PORT=3000
 
 # Database
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/appdb
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
 
 # Valkey
 VALKEY_URL=localhost:6379
-VALKEY_HOST=localhost
-VALKEY_PORT=6379
-
-# PG Admin
-PGADMIN_DEFAULT_EMAIL=test@test.com
-PGADMIN_DEFAULT_PASSWORD=postgres
-PGADMIN_PORT=54321
 
 # JWT
 JWT_SECRET=thisisasamplesecret
