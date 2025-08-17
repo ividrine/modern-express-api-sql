@@ -8,6 +8,26 @@ jobs:
   test:
     environment: test
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      NODE_ENV: ${{ env.NODE_ENV }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      VALKEY_URL: ${{ secrets.VALKEY_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ISSUER: ${{ env.JWT_ISSUER }}
+      JWT_AUDIENCE: ${{ env.JWT_AUDIENCE }}
+      JWT_ACCESS_EXPIRATION_MINUTES: ${{ env.JWT_ACCESS_EXPIRATION_MINUTES }}
+      JWT_REFRESH_EXPIRATION_DAYS: ${{ env.JWT_REFRESH_EXPIRATION_DAYS }}
+      JWT_RESET_PASSWORD_EXPIRATION_MINUTES: ${{ env.JWT_RESET_PASSWORD_EXPIRATION_MINUTES }}
+      JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: ${{ env.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      EMAIL_FROM: ${{ env.EMAIL_FROM }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     services:
       valkey:
         image: valkey/valkey
@@ -15,7 +35,6 @@ jobs:
           - 6379:6379
       database:
         image: postgres:latest
-        environment: test
         ports:
           - 5432:5432
         options: >-
@@ -36,10 +55,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Migrate db
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm migrate:dev -- --skip-seed
       - name: Run Vitest with coverage
+        env:
+
         run: pnpm test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -47,5 +66,3 @@ jobs:
           files: ./coverage/lcov.info,./coverage/cobertura-coverage.xml
           fail_ci_if_error: true
           verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
