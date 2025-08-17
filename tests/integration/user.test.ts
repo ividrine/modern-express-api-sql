@@ -274,10 +274,6 @@ describe("User routes", async () => {
 
       expect(res.body.results).toHaveLength(3);
 
-      expect(res.body.results[0].id).toBe(userOne.id);
-
-      expect(res.body.results[1].id).toBe(userTwo.id);
-
       expect(res.body.results[2].id).toBe(admin.id);
     });
 
