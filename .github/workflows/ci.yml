@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: "22"
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install
       - name: Migrate db
         run: pnpm migrate:dev -- --skip-seed
       - name: Run Vitest with coverage
