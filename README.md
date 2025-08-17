@@ -77,7 +77,7 @@ Starts external app dependencies with docker-compose.
 
 ### `envdown`
 
-Tears down external app dependencies. You can pass arguments to underlying docker-compose command like this `pnpm envup -- -v` to also remove volumes.
+Tears down external app dependencies. You can pass arguments to underlying docker-compose command like this `pnpm envdown -- -v` or `npm run envdown -- -v` to also remove volumes.
 
 ### `test`
 
