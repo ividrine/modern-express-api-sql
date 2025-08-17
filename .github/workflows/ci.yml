@@ -43,7 +43,6 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm migrate:dev -- --skip-seed
       - name: Run Vitest with coverage
-        environment: test
         env:
           NODE_ENV: ${{ env.NODE_ENV }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
