@@ -2,6 +2,9 @@
 
 <!-- PROJECT LOGO -->
 <div align="center">
+
+[![codecov](https://codecov.io/gh/ividrine/express-api-sql/graph/badge.svg?token=WN052EGT8S)](https://codecov.io/gh/ividrine/express-api-sql)
+
    <h3 align="center">Express API SQL</h3>
 
   <p align="center">
