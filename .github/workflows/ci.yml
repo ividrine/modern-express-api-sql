@@ -29,16 +29,18 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
       - name: Migrate db
-        run: npm run migrate:dev -- --skip-seed
+        run: pnpm migrate:dev -- --skip-seed
       - name: Run Vitest with coverage
-        run: npm run test
+        run: pnpm test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
