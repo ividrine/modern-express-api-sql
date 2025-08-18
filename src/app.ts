@@ -13,7 +13,37 @@ import {
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com"
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net",
+          "https://fonts.googleapis.com"
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://fonts.scalar.com",
+          "data:"
+        ],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"]
+      }
+    }
+  })
+);
 
 app.use(express.json());
 
@@ -26,6 +56,9 @@ if (config.env === "production") {
 }
 
 app.use("/v1", routes);
+
+// Handle favicon requests
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
