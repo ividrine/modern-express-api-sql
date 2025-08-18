@@ -16,14 +16,15 @@ export default defineConfig({
       reporter: ["text", "lcov", "cobertura", "html"],
       exclude: [
         "node_modules",
+        "dist",
+        "bin",
+        "db",
+        "tests",
+        "*.config.ts",
         "src/config",
         "src/app.ts",
         "src/index.ts",
-        "src/lib",
-        "tests",
-        "bin",
-        "db",
-        "*.config.ts"
+        "src/lib"
       ]
     }
   }

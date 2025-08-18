@@ -54,6 +54,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pg": "^8.15.4",
     "@types/supertest": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-istanbul": "3.2.4",
     "@vitest/ui": "3.2.4",
@@ -79,6 +80,7 @@
   },
   "dependencies": {
     "@prisma/client": "6.14.0",
+    "@scalar/express-api-reference": "^0.8.13",
     "bcrypt": "^6.0.0",
     "compression": "^1.8.1",
     "dayjs": "^1.11.13",
@@ -93,6 +95,7 @@
     "nodemailer": "^7.0.5",
     "ora": "^8.2.0",
     "pg": "^8.16.3",
+    "swagger-jsdoc": "^6.2.8",
     "winston": "^3.17.0",
     "zod": "^4.0.14"
   }
