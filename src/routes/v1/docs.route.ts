@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(
   "/",
   apiReference({
-    theme: "moon",
+    theme: "default",
     content: openApiSpec
   })
 );
