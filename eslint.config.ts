@@ -7,7 +7,7 @@ export default tseslint.config(
   // Ignores - needs to be in config by itself
   // see https://github.com/eslint/eslint/discussions/18304#discussioncomment-9069706
   {
-    ignores: ["dist", "node_modules", "bin", "db", "**/*.d.ts"]
+    ignores: ["dist", "node_modules", "bin", "db", "**/*.d.ts", "coverage"]
   },
 
   // TypeScript
