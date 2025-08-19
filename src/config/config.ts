@@ -1,36 +1,47 @@
-import * as z from "zod";
+import { z } from "zod";
 
 const envVarsSchema = z.object({
+  // Required
   NODE_ENV: z.enum(["production", "development", "test"]),
-  PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.string().describe("DB Url"),
   VALKEY_URL: z.string().describe("Valkey url"),
   JWT_SECRET: z.string().describe("JWT secret key"),
-  JWT_ISSUER: z.string().describe("JWT issuer"),
-  JWT_AUDIENCE: z.string().describe("JWT issuer"),
+
+  // Optional
+  PORT: z.coerce.number().default(3000).optional(),
+  JWT_ISSUER: z.string().default("nodeapp").describe("JWT issuer").optional(),
+  JWT_AUDIENCE: z.string().default("nodeapp").describe("JWT issuer").optional(),
   JWT_ACCESS_EXPIRATION_MINUTES: z.coerce
     .number()
     .default(30)
-    .describe("minutes after which access tokens expire"),
+    .describe("minutes after which access tokens expire")
+    .optional(),
   JWT_REFRESH_EXPIRATION_DAYS: z.coerce
     .number()
     .default(30)
-    .describe("days after which refresh tokens expire"),
+    .describe("days after which refresh tokens expire")
+    .optional(),
   JWT_RESET_PASSWORD_EXPIRATION_MINUTES: z.coerce
     .number()
     .default(10)
-    .describe("minutes after which reset password token expires"),
+    .describe("minutes after which reset password token expires")
+    .optional(),
   JWT_VERIFY_EMAIL_EXPIRATION_MINUTES: z.coerce
     .number()
     .default(10)
-    .describe("minutes after which verify email token expires"),
-  SMTP_HOST: z.string().describe("server that will send the emails"),
-  SMTP_PORT: z.coerce.number().describe("port to connect to the email server"),
-  SMTP_USERNAME: z.string().describe("username for email server"),
-  SMTP_PASSWORD: z.string().describe("password for email server"),
+    .describe("minutes after which verify email token expires")
+    .optional(),
+  SMTP_HOST: z.string().describe("server that will send the emails").optional(),
+  SMTP_PORT: z.coerce
+    .number()
+    .describe("port to connect to the email server")
+    .optional(),
+  SMTP_USERNAME: z.string().describe("username for email server").optional(),
+  SMTP_PASSWORD: z.string().describe("password for email server").optional(),
   EMAIL_FROM: z
     .string()
     .describe("the from field in the emails sent by the app")
+    .optional()
 });
 
 const data = envVarsSchema.parse(process.env);
