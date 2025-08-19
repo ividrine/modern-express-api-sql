@@ -1,13 +1,11 @@
-name: Run Tests and Publish
+name: Run Integration Tests
 
 on:
   pull_request:
     branches: [main]
 
 jobs:
-
   test:
-    name: Run Integration Tests
     runs-on: ubuntu-latest
     services:
       valkey:

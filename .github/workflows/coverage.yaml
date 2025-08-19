@@ -6,7 +6,6 @@ on:
 
 jobs:
   coverage:
-    name: Generate and Upload Coverage
     runs-on: ubuntu-latest
     services:
       valkey:
@@ -51,7 +50,7 @@ jobs:
 
       - name: Run Vitest with coverage
         run: pnpm test ci --coverage
-        
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
